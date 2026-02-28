@@ -21,6 +21,7 @@ class EnvironmentLogController extends Controller
             'mid_humidity' => 'nullable|numeric',
             'end_temp' => 'nullable|numeric',
             'end_humidity' => 'nullable|numeric',
+            'extra_logs' => 'nullable|array',
         ];
 
         $validated = $request->validate($rules);
@@ -30,7 +31,17 @@ class EnvironmentLogController extends Controller
         $validated['mid_in_range'] = $this->checkRange($validated['mid_temp'], $validated['mid_humidity']);
         $validated['end_in_range'] = $this->checkRange($validated['end_temp'], $validated['end_humidity']);
 
-        $hasExcursion = !$validated['start_in_range'] || !$validated['mid_in_range'] || !$validated['end_in_range'];
+        $extraExcursion = false;
+        if (!empty($validated['extra_logs'])) {
+            foreach ($validated['extra_logs'] as $log) {
+                if (!$this->checkRange($log['temp'] ?? null, $log['humidity'] ?? null)) {
+                    $extraExcursion = true;
+                    break;
+                }
+            }
+        }
+
+        $hasExcursion = !$validated['start_in_range'] || !$validated['mid_in_range'] || !$validated['end_in_range'] || $extraExcursion;
 
         if ($hasExcursion) {
             $request->validate(['corrective_action' => 'required|string']);

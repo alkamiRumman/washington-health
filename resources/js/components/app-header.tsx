@@ -1,10 +1,10 @@
 import { Breadcrumbs } from '@/components/breadcrumbs';
-import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Link, router, usePage } from '@inertiajs/react';
-import { LogOut, Settings, LayoutGrid, Users, Truck, FileBarChart, PlusSquare } from 'lucide-react';
+import { Bell, LogOut, Settings, LayoutGrid, Users, Truck, FileBarChart, PlusSquare } from 'lucide-react';
 import React from 'react';
 import NotificationDropdown from './NotificationDropdown';
+import { confirmAction } from '@/utils/alerts';
 
 export interface NavItem {
     title: string;
@@ -73,12 +73,7 @@ export function AppHeader({ breadcrumbs = [], navItems: propNavItems = [] }: App
         return false;
     };
 
-    const cleanup = useMobileNavigation();
 
-    const handleLogout = () => {
-        cleanup();
-        router.flushAll();
-    };
 
     return (
         <>
@@ -111,11 +106,26 @@ export function AppHeader({ breadcrumbs = [], navItems: propNavItems = [] }: App
                                     );
                                 })}
                                 <li>
-                                    <NotificationDropdown />
+                                    <NotificationDropdown>
+                                        <button
+                                            type="button"
+                                            className={`relative flex items-center space-x-1 transition-colors hover:text-blue-600 dark:hover:text-blue-400 ${
+                                                isActive('/notifications') ? 'font-medium text-amber-600 dark:text-amber-400' : 'text-gray-600 dark:text-gray-300'
+                                            }`}
+                                        >
+                                            <Bell size={18} />
+                                            <span>Notifications</span>
+                                            {auth.unread_notifications_count > 0 && (
+                                                <span className="absolute -top-1.5 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white ring-2 ring-white dark:ring-gray-800">
+                                                    {auth.unread_notifications_count > 9 ? '9+' : auth.unread_notifications_count}
+                                                </span>
+                                            )}
+                                        </button>
+                                    </NotificationDropdown>
                                 </li>
                                 <li>
                                     <Link
-                                        href="/settings"
+                                        href="/settings/profile"
                                         className={`flex items-center space-x-1 transition-colors hover:text-blue-600 dark:hover:text-blue-400 ${
                                             isActive(settingRoutes)
                                                 ? 'font-medium text-amber-600 dark:text-amber-400'
@@ -127,16 +137,17 @@ export function AppHeader({ breadcrumbs = [], navItems: propNavItems = [] }: App
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link
-                                        method="post"
-                                        href={route('logout')}
-                                        as="button"
-                                        onClick={handleLogout}
-                                        className="flex items-center space-x-1 transition-colors hover:text-blue-600 dark:hover:text-blue-400 text-gray-600 dark:text-gray-300"
+                                    <button
+                                        onClick={async () => {
+                                            if (await confirmAction('Logout', 'Are you sure you want to log out?', 'info')) {
+                                                router.post(route('logout'));
+                                            }
+                                        }}
+                                        className="flex items-center space-x-1 transition-colors hover:text-red-600 dark:hover:text-red-400 text-gray-600 dark:text-gray-300"
                                     >
                                         <LogOut size={18} />
                                         <span>Logout</span>
-                                    </Link>
+                                    </button>
                                 </li>
                             </ul>
                         </nav>
@@ -155,16 +166,35 @@ export function AppHeader({ breadcrumbs = [], navItems: propNavItems = [] }: App
                                     </Link>
                                 );
                             })}
-                            <NotificationDropdown />
+                            <NotificationDropdown>
+                                <button
+                                    type="button"
+                                    className="relative flex items-center space-x-1 transition-colors hover:text-blue-600 dark:hover:text-blue-400 text-gray-600 dark:text-gray-300"
+                                >
+                                    <Bell size={20} />
+                                    {auth.unread_notifications_count > 0 && (
+                                        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white ring-2 ring-white dark:ring-gray-800">
+                                            {auth.unread_notifications_count > 9 ? '9+' : auth.unread_notifications_count}
+                                        </span>
+                                    )}
+                                </button>
+                            </NotificationDropdown>
                             <Link
-                                href="/settings"
+                                href="/settings/profile"
                                 className={isActive(settingRoutes) ? 'text-amber-600 dark:text-amber-400' : 'text-gray-600 dark:text-gray-300'}
                             >
-                                <Settings />
+                                <Settings size={20} />
                             </Link>
-                            <Link method="post" href={route('logout')} as="button" onClick={handleLogout}>
-                                <LogOut />
-                            </Link>
+                            <button
+                                onClick={async () => {
+                                    if (await confirmAction('Logout', 'Are you sure you want to log out?', 'info')) {
+                                        router.post(route('logout'));
+                                    }
+                                }}
+                                className="text-gray-600 dark:text-gray-300"
+                            >
+                                <LogOut size={20} />
+                            </button>
                         </div>
                     </div>
                 </div>

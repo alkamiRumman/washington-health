@@ -1,10 +1,31 @@
 import { useForm, router } from '@inertiajs/react';
 import SignaturePad from './SignaturePad';
 import { CheckCircle2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { showAlert } from '@/utils/alerts';
+
+interface ChainOfCustody {
+    id?: number;
+    container_ids: string;
+    condition: string;
+    pickup_department: string;
+    delivery_department: string;
+    pickup_time: string;
+    delivery_time: string;
+    driver_signature: string;
+    driver_signed_at: string;
+    receiver_signature: string;
+    receiver_signed_at: string;
+    exceptions: string;
+}
 
 interface ChainOfCustodyFormProps {
-    delivery: any;
-    coc?: any;
+    delivery: { id: number; [key: string]: any };
+    coc?: ChainOfCustody;
     readOnly?: boolean;
 }
 
@@ -43,26 +64,35 @@ export default function ChainOfCustodyForm({ delivery, coc, readOnly = false }: 
     });
 
     const submit = (e: React.FormEvent, isFinal = false) => {
-        e.preventDefault();
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
         const payload = buildPayload({ is_final: isFinal });
+        const options = { 
+            preserveScroll: true, 
+            preserveState: true,
+            onSuccess: () => {
+                if (isFinal) showAlert('Success', 'Delivery marked as complete!', 'success');
+                else showAlert('Saved', 'Chain of custody data saved', 'success');
+            }
+        };
+
         if (coc) {
-            router.patch(route('coc.update', delivery.id), payload, { preserveScroll: true, preserveState: true });
+            router.patch(route('coc.update', delivery.id), payload, options);
         } else {
-            router.post(route('coc.store', delivery.id), payload, { preserveScroll: true, preserveState: true });
+            router.post(route('coc.store', delivery.id), payload, options);
         }
     };
 
     const saveSignatureToServer = (overrides: Partial<typeof data>) => {
         const payload = buildPayload(overrides);
-        if (coc) {
-            router.patch(route('coc.update', delivery.id), payload, { preserveScroll: true, preserveState: true });
-        } else {
-            router.post(route('coc.store', delivery.id), payload, { preserveScroll: true, preserveState: true });
-        }
+        router.post(route('coc.store', delivery.id), payload, { preserveScroll: true, preserveState: true });
     };
 
+    let effectiveReadOnly = readOnly;
     if (isComplete && !readOnly) {
-         readOnly = true; // Automatically lock fields if completed to avoid accidental overrides unless specifically handled
+         effectiveReadOnly = true;
     }
 
     return (
@@ -89,76 +119,71 @@ export default function ChainOfCustodyForm({ delivery, coc, readOnly = false }: 
             
             <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Container IDs</label>
-                        <input
-                            type="text"
+                    <div className="space-y-1.5">
+                        <Label>Container IDs</Label>
+                        <Input
                             value={data.container_ids}
                             onChange={e => setData('container_ids', e.target.value)}
-                            readOnly={readOnly}
+                            readOnly={effectiveReadOnly}
                             placeholder="e.g. CTN-001, CTN-002"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white disabled:opacity-50"
                         />
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Condition</label>
-                        <select
-                            value={data.condition}
-                            onChange={e => setData('condition', e.target.value)}
-                            disabled={readOnly}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white disabled:opacity-50"
+                    <div className="space-y-1.5">
+                        <Label>Condition</Label>
+                        <Select 
+                            value={data.condition} 
+                            onValueChange={v => setData('condition', v)}
+                            disabled={effectiveReadOnly}
                         >
-                            <option value="">Select Condition</option>
-                            <option value="Intact">Intact</option>
-                            <option value="Sealed">Sealed</option>
-                            <option value="Damaged">Damaged</option>
-                            <option value="Compromised">Compromised</option>
-                        </select>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select Condition" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Intact">Intact</SelectItem>
+                                <SelectItem value="Sealed">Sealed</SelectItem>
+                                <SelectItem value="Damaged">Damaged</SelectItem>
+                                <SelectItem value="Compromised">Compromised</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pickup Department</label>
-                        <input
-                            type="text"
+                    <div className="space-y-1.5">
+                        <Label>Pickup Department</Label>
+                        <Input
                             value={data.pickup_department}
                             onChange={e => setData('pickup_department', e.target.value)}
-                            readOnly={readOnly}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white disabled:opacity-50"
+                            readOnly={effectiveReadOnly}
                         />
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Delivery Department</label>
-                        <input
-                            type="text"
+                    <div className="space-y-1.5">
+                        <Label>Delivery Department</Label>
+                        <Input
                             value={data.delivery_department}
                             onChange={e => setData('delivery_department', e.target.value)}
-                            readOnly={readOnly}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white disabled:opacity-50"
+                            readOnly={effectiveReadOnly}
                         />
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pickup Time</label>
-                        <input
+                    <div className="space-y-1.5">
+                        <Label>Pickup Time</Label>
+                        <Input
                             type="datetime-local"
                             value={data.pickup_time}
                             onChange={e => setData('pickup_time', e.target.value)}
-                            readOnly={readOnly}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white disabled:opacity-50"
+                            readOnly={effectiveReadOnly}
                         />
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Delivery Time</label>
-                        <input
+                    <div className="space-y-1.5">
+                        <Label>Delivery Time</Label>
+                        <Input
                             type="datetime-local"
                             value={data.delivery_time}
                             onChange={e => setData('delivery_time', e.target.value)}
-                            readOnly={readOnly}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white disabled:opacity-50"
+                            readOnly={effectiveReadOnly}
                         />
                     </div>
                 </div>
@@ -172,21 +197,19 @@ export default function ChainOfCustodyForm({ delivery, coc, readOnly = false }: 
                             setData('driver_signed_at', signedAt ?? '');
                             if (val && signedAt) {
                                 const now = new Date().toISOString().slice(0, 16);
-                                if (!data.pickup_time) setData('pickup_time', now);
+                                const pTime = data.pickup_time || now;
+                                setData('pickup_time', pTime);
                                 saveSignatureToServer({
                                     driver_signature: val,
                                     driver_signed_at: signedAt,
-                                    pickup_time: data.pickup_time || now,
+                                    pickup_time: pTime,
                                 });
                             } else {
-                                saveSignatureToServer({ driver_signature: '', driver_signed_at: null });
+                                saveSignatureToServer({ driver_signature: '', driver_signed_at: '' });
                             }
                         }}
-                        readOnly={readOnly}
+                        readOnly={effectiveReadOnly}
                     />
-                    {data.driver_signed_at && (
-                        <p className="text-xs text-muted-foreground col-span-2">Driver signed: {new Date(data.driver_signed_at).toLocaleString()}</p>
-                    )}
                     <SignaturePad 
                         label="Receiver Signature" 
                         existingSignature={data.receiver_signature}
@@ -195,60 +218,49 @@ export default function ChainOfCustodyForm({ delivery, coc, readOnly = false }: 
                             setData('receiver_signed_at', signedAt ?? '');
                             if (val && signedAt) {
                                 const now = new Date().toISOString().slice(0, 16);
-                                if (!data.delivery_time) setData('delivery_time', now);
+                                const dTime = data.delivery_time || now;
+                                setData('delivery_time', dTime);
                                 saveSignatureToServer({
                                     receiver_signature: val,
                                     receiver_signed_at: signedAt,
-                                    delivery_time: data.delivery_time || now,
+                                    delivery_time: dTime,
                                 });
                             } else {
-                                saveSignatureToServer({ receiver_signature: '', receiver_signed_at: null });
+                                saveSignatureToServer({ receiver_signature: '', receiver_signed_at: '' });
                             }
                         }}
-                        readOnly={readOnly}
+                        readOnly={effectiveReadOnly}
                     />
-                    {data.receiver_signed_at && (
-                        <p className="text-xs text-muted-foreground col-span-2">Receiver signed: {new Date(data.receiver_signed_at).toLocaleString()}</p>
-                    )}
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Exceptions (Optional)</label>
-                    <textarea
+                <div className="space-y-1.5">
+                    <Label>Exceptions (Optional)</Label>
+                    <Textarea
                         value={data.exceptions}
                         onChange={e => setData('exceptions', e.target.value)}
-                        readOnly={readOnly}
+                        readOnly={effectiveReadOnly}
                         rows={2}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white disabled:opacity-50"
                     />
                 </div>
 
-                {(!isComplete && !readOnly) && (
+                {(!isComplete && !effectiveReadOnly) && (
                     <div className="pt-3 flex items-center gap-3">
-                        <button
+                        <Button
                             type="button"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                submit(e, false);
-                            }}
+                            variant="outline"
+                            onClick={(e) => submit(e, false)}
                             disabled={processing}
-                            className="inline-flex justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-100 dark:ring-gray-600 dark:hover:bg-gray-600 disabled:opacity-50"
                         >
-                            Save
-                        </button>
-                        <button
+                            Save Progress
+                        </Button>
+                        <Button
                             type="button"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                submit(e, true);
-                            }}
+                            onClick={(e) => submit(e, true)}
                             disabled={processing || !data.driver_signature || !data.receiver_signature}
-                            className="inline-flex justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50"
+                            className="bg-indigo-600 hover:bg-indigo-700"
                         >
                             Mark Complete
-                        </button>
+                        </Button>
                     </div>
                 )}
             </form>

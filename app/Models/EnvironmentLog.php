@@ -19,6 +19,7 @@ class EnvironmentLog extends Model
         'mid_humidity',
         'end_temp',
         'end_humidity',
+        'extra_logs',
         'start_in_range',
         'mid_in_range',
         'end_in_range',
@@ -29,6 +30,7 @@ class EnvironmentLog extends Model
         'start_in_range' => 'boolean',
         'mid_in_range' => 'boolean',
         'end_in_range' => 'boolean',
+        'extra_logs' => 'array',
     ];
 
     public function delivery()

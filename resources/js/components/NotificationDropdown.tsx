@@ -27,7 +27,11 @@ interface Notification {
 
 const POLL_INTERVAL_MS = 15000; // 15 seconds for near real-time
 
-export default function NotificationDropdown() {
+interface NotificationDropdownProps {
+    children?: React.ReactNode;
+}
+
+export default function NotificationDropdown({ children }: NotificationDropdownProps) {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [clearConfirmOpen, setClearConfirmOpen] = useState(false);
@@ -75,21 +79,23 @@ export default function NotificationDropdown() {
         <>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <button
-                        type="button"
-                        className="relative flex items-center space-x-1 rounded-md px-2 text-gray-600 transition-colors hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
-                        aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}
-                    >
-                        <Bell className="h-5 w-5" />
-                        {unreadCount > 0 && (
-                            <span className="absolute -top-0.5 right-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-[11px] font-bold text-white ring-2 ring-white dark:ring-gray-800">
-                                {unreadCount > 99 ? '99+' : unreadCount}
-                            </span>
-                        )}
-                        <span className="hidden md:inline">Notifications</span>
-                    </button>
+                    {children ? children : (
+                        <button
+                            type="button"
+                            className="relative flex items-center space-x-1 rounded-md px-2 text-gray-600 transition-colors hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
+                            aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}
+                        >
+                            <Bell className="h-5 w-5" />
+                            {unreadCount > 0 && (
+                                <span className="absolute -top-0.5 right-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-[11px] font-bold text-white ring-2 ring-white dark:ring-gray-800">
+                                    {unreadCount > 99 ? '99+' : unreadCount}
+                                </span>
+                            )}
+                            <span className="hidden md:inline">Notifications</span>
+                        </button>
+                    )}
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" className="w-[380px] p-0" sideOffset={19}>
+                <DropdownMenuContent align="end" className="w-[380px] p-0" sideOffset={8}>
                     <div className="flex items-center justify-between border-b px-4 py-3">
                         <h3 className="text-sm font-semibold">Notifications</h3>
                         <div className="flex items-center gap-1">
