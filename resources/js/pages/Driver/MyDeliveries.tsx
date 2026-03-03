@@ -149,8 +149,8 @@ function DeliveryCard({ delivery, hasInProgress, canStartDelivery, onStartClick,
             {/* Env + CoC (in transit / completed) */}
             {(delivery.status === 'in_transit' || delivery.status === 'in_progress' || delivery.status === 'completed') && (
                 <div className="border-t border-gray-100 px-5 py-4 dark:border-gray-700 space-y-4">
-                    <EnvironmentForm delivery={delivery} envLog={delivery.environmentLog} readOnly={delivery.status === 'completed'} />
-                    <ChainOfCustodyForm delivery={delivery} coc={delivery.chainOfCustody} readOnly={delivery.status === 'completed'} />
+                    <EnvironmentForm delivery={delivery} envLog={delivery.environment_log} readOnly={delivery.status === 'completed'} />
+                    <ChainOfCustodyForm delivery={delivery} coc={delivery.chain_of_custody} readOnly={delivery.status === 'completed'} />
                 </div>
             )}
 

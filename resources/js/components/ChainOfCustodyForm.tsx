@@ -220,7 +220,6 @@ export default function ChainOfCustodyForm({ delivery, coc, readOnly = false }: 
                         label="Driver Signature" 
                         existingSignature={data.driver_signature}
                         onSave={(val, signedAt) => {
-                            console.log(val, signedAt);
                             const newPickupTime = val ? getNowFormatted() : '';
                             const nextState = { 
                                 ...data, 

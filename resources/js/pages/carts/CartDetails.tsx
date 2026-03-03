@@ -207,7 +207,6 @@ const CartDetails: React.FC<Props> = ({ cart, cartDrawers, itemsDetails = [], lo
 
             const newLocation = response.data;
             // Update options
-            console.log(newLocation);
             setLocationsOptions((prev) => [
                 ...prev,
                 {

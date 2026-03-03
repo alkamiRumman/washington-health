@@ -12,7 +12,6 @@ const QrScanner: React.FC = () => {
   
   const handleScan = (data: any) => {
     if (data) {
-      console.log('Scanned data:', data);
       const qrCode = data.text;
       
       // Find cart by QR code
