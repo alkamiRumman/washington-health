@@ -1,31 +1,32 @@
-import { useForm, router } from '@inertiajs/react';
-import SignaturePad from './SignaturePad';
-import { CheckCircle2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { DateTimePicker } from '@/components/ui/date-time-picker';
+import { Delivery } from '@/types';
 import { showAlert } from '@/utils/alerts';
+import { router, useForm } from '@inertiajs/react';
+import { CheckCircle2 } from 'lucide-react';
+import SignaturePad from './SignaturePad';
 
 interface ChainOfCustody {
     id?: number;
-    container_ids: string;
-    condition: string;
-    pickup_department: string;
-    delivery_department: string;
-    pickup_time: string;
-    delivery_time: string;
-    driver_signature: string;
-    driver_signed_at: string;
-    receiver_signature: string;
-    receiver_signed_at: string;
-    exceptions: string;
+    container_ids?: string | null;
+    condition?: string | null;
+    pickup_department?: string | null;
+    delivery_department?: string | null;
+    pickup_time?: string | null;
+    delivery_time?: string | null;
+    driver_signature?: string | null;
+    driver_signed_at?: string | null;
+    receiver_signature?: string | null;
+    receiver_signed_at?: string | null;
+    exceptions?: string | null;
 }
 
 interface ChainOfCustodyFormProps {
-    delivery: { id: number; [key: string]: any };
+    delivery: Delivery;
     coc?: ChainOfCustody;
     readOnly?: boolean;
 }
@@ -43,11 +44,10 @@ export default function ChainOfCustodyForm({ delivery, coc, readOnly = false }: 
         receiver_signature: coc?.receiver_signature ?? '',
         receiver_signed_at: coc?.receiver_signed_at ?? '',
         exceptions: coc?.exceptions ?? '',
-        is_final: false as boolean
+        is_final: false as boolean,
     });
 
     const isComplete = coc && coc.driver_signature && coc.receiver_signature;
-
 
     const submit = (e: React.FormEvent, isFinal = false) => {
         if (e) {
@@ -65,17 +65,18 @@ export default function ChainOfCustodyForm({ delivery, coc, readOnly = false }: 
             is_final: isFinal,
         };
 
-        const options = { 
-            preserveScroll: true, 
+        const options = {
+            preserveScroll: true,
             preserveState: true,
             onSuccess: () => {
                 if (isFinal) showAlert('Success', 'Chain of custody marked complete!', 'success');
                 else showAlert('Saved', 'Chain of custody data saved', 'success');
             },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             onError: (err: any) => {
                 console.error('Submit failed:', err);
                 showAlert('Error', 'Failed to save data. Please check required fields.', 'error');
-            }
+            },
         };
 
         if (coc) {
@@ -105,10 +106,11 @@ export default function ChainOfCustodyForm({ delivery, coc, readOnly = false }: 
                     showAlert('Saved', 'Signature and time saved', 'success');
                 }
             },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             onError: (err: any) => {
                 console.error('Signature save failed:', err);
                 showAlert('Error', 'Failed to save signature. Please check your connection.', 'error');
-            }
+            },
         });
     };
 
@@ -126,10 +128,10 @@ export default function ChainOfCustodyForm({ delivery, coc, readOnly = false }: 
 
     return (
         <div className="mt-4 border-t border-gray-100 pt-4 dark:border-gray-700">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center justify-between">
+            <h3 className="mb-3 flex items-center justify-between text-sm font-medium text-gray-900 dark:text-gray-100">
                 <span>Chain of Custody</span>
                 {isComplete && (
-                    <span className="inline-flex items-center rounded-md bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-700 ring-1 ring-inset ring-green-600/20 dark:bg-green-900/40 dark:text-green-300">
+                    <span className="inline-flex items-center rounded-md bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-700 ring-1 ring-green-600/20 ring-inset dark:bg-green-900/40 dark:text-green-300">
                         <CheckCircle2 className="mr-1 h-3 w-3" />
                         Complete
                     </span>
@@ -137,33 +139,29 @@ export default function ChainOfCustodyForm({ delivery, coc, readOnly = false }: 
             </h3>
 
             {isComplete && (
-                 <div className="mb-4 rounded-md bg-green-50 p-3 border border-green-200 dark:bg-green-900/40 dark:border-green-800 flex items-center gap-3">
-                     <CheckCircle2 className="h-5 w-5 text-green-400 flex-shrink-0" />
-                     <div>
-                         <h4 className="text-sm font-medium text-green-800 dark:text-green-200">Chain of Custody Complete ✓</h4>
-                         <p className="text-xs text-green-700 dark:text-green-300">All required signatures and data have been firmly logged.</p>
-                     </div>
-                 </div>
+                <div className="mb-4 flex items-center gap-3 rounded-md border border-green-200 bg-green-50 p-3 dark:border-green-800 dark:bg-green-900/40">
+                    <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-green-400" />
+                    <div>
+                        <h4 className="text-sm font-medium text-green-800 dark:text-green-200">Chain of Custody Complete ✓</h4>
+                        <p className="text-xs text-green-700 dark:text-green-300">All required signatures and data have been firmly logged.</p>
+                    </div>
+                </div>
             )}
-            
+
             <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="space-y-1.5">
                         <Label>Container IDs</Label>
                         <Input
                             value={data.container_ids}
-                            onChange={e => setData('container_ids', e.target.value)}
+                            onChange={(e) => setData('container_ids', e.target.value)}
                             readOnly={effectiveReadOnly}
                             placeholder="e.g. CTN-001, CTN-002"
                         />
                     </div>
                     <div className="space-y-1.5">
                         <Label>Condition</Label>
-                        <Select 
-                            value={data.condition} 
-                            onValueChange={v => setData('condition', v)}
-                            disabled={effectiveReadOnly}
-                        >
+                        <Select value={data.condition} onValueChange={(v) => setData('condition', v)} disabled={effectiveReadOnly}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Select Condition" />
                             </SelectTrigger>
@@ -177,12 +175,12 @@ export default function ChainOfCustodyForm({ delivery, coc, readOnly = false }: 
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="space-y-1.5">
                         <Label>Pickup Department</Label>
                         <Input
                             value={data.pickup_department}
-                            onChange={e => setData('pickup_department', e.target.value)}
+                            onChange={(e) => setData('pickup_department', e.target.value)}
                             readOnly={effectiveReadOnly}
                         />
                     </div>
@@ -190,58 +188,50 @@ export default function ChainOfCustodyForm({ delivery, coc, readOnly = false }: 
                         <Label>Delivery Department</Label>
                         <Input
                             value={data.delivery_department}
-                            onChange={e => setData('delivery_department', e.target.value)}
+                            onChange={(e) => setData('delivery_department', e.target.value)}
                             readOnly={effectiveReadOnly}
                         />
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="space-y-1.5">
                         <Label>Pickup Time</Label>
-                        <DateTimePicker
-                            value={data.pickup_time}
-                            onChange={e => setData('pickup_time', e)}
-                            readOnly={effectiveReadOnly}
-                        />
+                        <DateTimePicker value={data.pickup_time} onChange={(e) => setData('pickup_time', e)} readOnly={effectiveReadOnly} />
                     </div>
                     <div className="space-y-1.5">
                         <Label>Delivery Time</Label>
-                        <DateTimePicker
-                            value={data.delivery_time}
-                            onChange={e => setData('delivery_time', e)}
-                            readOnly={effectiveReadOnly}
-                        />
+                        <DateTimePicker value={data.delivery_time} onChange={(e) => setData('delivery_time', e)} readOnly={effectiveReadOnly} />
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <SignaturePad 
-                        label="Driver Signature" 
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <SignaturePad
+                        label="Driver Signature"
                         existingSignature={data.driver_signature}
                         onSave={(val, signedAt) => {
                             const newPickupTime = val ? getNowFormatted() : '';
-                            const nextState = { 
-                                ...data, 
-                                driver_signature: val, 
+                            const nextState = {
+                                ...data,
+                                driver_signature: val,
                                 driver_signed_at: signedAt ?? '',
-                                pickup_time: newPickupTime
+                                pickup_time: newPickupTime,
                             };
                             setData(nextState);
                             saveSignatureToServer(nextState, val ? null : 'driver');
                         }}
                         readOnly={effectiveReadOnly}
                     />
-                    <SignaturePad 
-                        label="Receiver Signature" 
+                    <SignaturePad
+                        label="Receiver Signature"
                         existingSignature={data.receiver_signature}
                         onSave={(val, signedAt) => {
                             const newDeliveryTime = val ? getNowFormatted() : '';
-                            const nextState = { 
-                                ...data, 
-                                receiver_signature: val, 
+                            const nextState = {
+                                ...data,
+                                receiver_signature: val,
                                 receiver_signed_at: signedAt ?? '',
-                                delivery_time: newDeliveryTime
+                                delivery_time: newDeliveryTime,
                             };
                             setData(nextState);
                             saveSignatureToServer(nextState, val ? null : 'receiver');
@@ -252,33 +242,29 @@ export default function ChainOfCustodyForm({ delivery, coc, readOnly = false }: 
 
                 <div className="space-y-1.5">
                     <Label>Exceptions (Optional)</Label>
-                    <Textarea
-                        value={data.exceptions}
-                        onChange={e => setData('exceptions', e.target.value)}
-                        readOnly={effectiveReadOnly}
-                        rows={2}
-                    />
+                    <Textarea value={data.exceptions} onChange={(e) => setData('exceptions', e.target.value)} readOnly={effectiveReadOnly} rows={2} />
                 </div>
 
                 {!effectiveReadOnly && (
-                    <div className="pt-3 space-y-2">
+                    <div className="space-y-2 pt-3">
                         <p className="text-xs text-muted-foreground">
-                            <strong>Save Progress</strong> saves your work. <strong>Mark Complete</strong> finalizes the chain of custody and requires both driver and receiver signatures above.
+                            <strong>Save Progress</strong> saves your work. <strong>Mark Complete</strong> finalizes the chain of custody and requires
+                            both driver and receiver signatures above.
                         </p>
                         <div className="flex items-center gap-3">
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={(e) => submit(e, false)}
+                                onClick={(e: React.MouseEvent) => submit(e as unknown as React.FormEvent, false)}
                                 disabled={processing}
                             >
                                 Save Progress
                             </Button>
                             <Button
                                 type="button"
-                                onClick={(e) => submit(e, true)}
+                                onClick={(e: React.MouseEvent) => submit(e as unknown as React.FormEvent, true)}
                                 disabled={processing || !data.driver_signature || !data.receiver_signature}
-                                title={(!data.driver_signature || !data.receiver_signature) ? 'Add both signatures above to enable' : ''}
+                                title={!data.driver_signature || !data.receiver_signature ? 'Add both signatures above to enable' : ''}
                                 className="bg-indigo-600 hover:bg-indigo-700"
                             >
                                 Mark Complete

@@ -1,20 +1,15 @@
 import { AppContent } from '@/components/app-content';
 import { AppHeader } from '@/components/app-header';
 import { AppShell } from '@/components/app-shell';
+import { type BreadcrumbItem } from '@/types';
 import { usePage } from '@inertiajs/react';
-import { useEffect } from 'react';
+import { type ReactNode, useEffect } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { LayoutGrid, Truck, CheckCircle2 } from 'lucide-react';
 
-const driverNavItems = [
-    { title: "Dashboard", href: "/driver/dashboard", icon: LayoutGrid },
-    { title: "My Deliveries", href: "/driver/deliveries", icon: Truck },
-    { title: "Completed", href: "/driver/deliveries/completed", icon: CheckCircle2 },
-];
-
-export default function DriverLayout({ children, breadcrumbs }) {
-    const { props: pageProps } = usePage();
+export default function DriverLayout({ children, breadcrumbs }: { children: ReactNode; breadcrumbs?: BreadcrumbItem[] }) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { props: pageProps } = usePage() as any;
     const flashMessage = pageProps?.flash?.message;
     const success = flashMessage?.success;
     const errorMsg = flashMessage?.error;
@@ -26,7 +21,7 @@ export default function DriverLayout({ children, breadcrumbs }) {
 
     return (
         <AppShell>
-            <AppHeader breadcrumbs={breadcrumbs} navItems={driverNavItems} />
+            <AppHeader breadcrumbs={breadcrumbs} />
             <AppContent>
                 <ToastContainer position="bottom-right" autoClose={3000} />
                 {children}

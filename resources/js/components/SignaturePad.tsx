@@ -65,17 +65,7 @@ export default function SignaturePad({ label, onSave, existingSignature, readOnl
                     trimmedCanvas.height = trimmedHeight;
                     const trimmedContext = trimmedCanvas.getContext('2d');
                     if (trimmedContext) {
-                        trimmedContext.drawImage(
-                            canvas,
-                            left,
-                            top,
-                            trimmedWidth,
-                            trimmedHeight,
-                            0,
-                            0,
-                            trimmedWidth,
-                            trimmedHeight,
-                        );
+                        trimmedContext.drawImage(canvas, left, top, trimmedWidth, trimmedHeight, 0, 0, trimmedWidth, trimmedHeight);
                         canvas = trimmedCanvas;
                     }
                 }
@@ -95,15 +85,17 @@ export default function SignaturePad({ label, onSave, existingSignature, readOnl
     return (
         <div className="flex flex-col gap-2">
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
-            
+
             {!showPad && existingSignature && (
-                <div className="border border-gray-200 rounded-md p-2 bg-gray-50 dark:bg-gray-800 dark:border-gray-700 flex flex-col items-center gap-2">
+                <div className="flex flex-col items-center gap-2 rounded-md border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-800">
                     <img src={existingSignature} alt={`${label} signature`} className="max-h-32 object-contain filter dark:invert" />
                     {!readOnly && (
-                        <button 
-                            type="button" 
-                            onClick={() => { setShowPad(true); }}
-                            className="text-xs text-indigo-600 hover:text-indigo-500 font-medium"
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setShowPad(true);
+                            }}
+                            className="text-xs font-medium text-indigo-600 hover:text-indigo-500"
                         >
                             Re-sign
                         </button>
@@ -112,27 +104,33 @@ export default function SignaturePad({ label, onSave, existingSignature, readOnl
             )}
 
             {showPad && !readOnly && (
-                <div className="flex flex-col gap-2 relative border border-gray-200 rounded-md overflow-hidden dark:border-gray-600">
+                <div className="relative flex flex-col gap-2 overflow-hidden rounded-md border border-gray-200 dark:border-gray-600">
                     <div className="bg-white">
-                        <SignatureCanvas 
-                            ref={padRef} 
-                            canvasProps={{ className: 'w-full h-32' }} 
-                            onEnd={() => { setIsSigned(!padRef.current?.isEmpty()); }}
+                        <SignatureCanvas
+                            ref={padRef}
+                            canvasProps={{ className: 'w-full h-32' }}
+                            onEnd={() => {
+                                setIsSigned(!padRef.current?.isEmpty());
+                            }}
                         />
                     </div>
-                    <div className="bg-gray-50 px-3 py-2 flex justify-end gap-2 border-t border-gray-200 dark:bg-gray-800 dark:border-gray-700">
-                        <button 
-                            type="button" 
-                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); clear(); }}
-                            className="text-xs text-gray-600 hover:text-gray-500 font-medium dark:text-gray-400 dark:hover:text-gray-300"
+                    <div className="flex justify-end gap-2 border-t border-gray-200 bg-gray-50 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                clear();
+                            }}
+                            className="text-xs font-medium text-gray-600 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-300"
                         >
                             Clear
                         </button>
-                        <button 
-                            type="button" 
+                        <button
+                            type="button"
                             onClick={(e) => save(e)}
                             disabled={!isSigned}
-                            className="text-xs bg-indigo-600 text-white hover:bg-indigo-500 font-medium px-3 py-1 rounded disabled:opacity-50"
+                            className="rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
                         >
                             Save Signature
                         </button>

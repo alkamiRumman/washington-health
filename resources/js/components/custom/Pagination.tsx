@@ -1,5 +1,5 @@
-import React from 'react';
 import { Link } from '@inertiajs/react';
+import React from 'react';
 
 interface LinkProps {
     url: string | null;
@@ -7,20 +7,20 @@ interface LinkProps {
     active: boolean;
 }
 
-interface ProjectsPagination {
-    from: number;
-    to: number;
+interface PaginationData {
+    from: number | null;
+    to: number | null;
     total: number;
     links: LinkProps[];
 }
 
 interface PaginationProps {
-    data: ProjectsPagination;
+    data: PaginationData;
 }
 
 export const Pagination: React.FC<PaginationProps> = ({ data }) => {
     return (
-        <div className="xs:flex-col mt-4 flex flex-col justify-between gap-3 md:flex-row md:items-center">
+        <div className="xs:flex-col flex flex-col justify-between gap-3 md:flex-row md:items-center">
             <p className="text-sm text-gray-600 dark:text-gray-300">
                 Showing <strong>{data.from}</strong> to <strong>{data.to}</strong> of <strong>{data.total}</strong> entries
             </p>

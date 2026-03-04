@@ -1,35 +1,23 @@
-import { useForm } from '@inertiajs/react';
-import { useState } from 'react';
-import { CheckCircle2, XCircle, AlertTriangle, Plus, Trash2 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Delivery, EnvironmentLog as GlobalEnvironmentLog } from '@/types';
 import { showAlert } from '@/utils/alerts';
+import { useForm } from '@inertiajs/react';
+import { AlertTriangle, CheckCircle2, Plus, Trash2, XCircle } from 'lucide-react';
+import { useState } from 'react';
 
 interface ExtraLog {
     temp: string;
     humidity: string;
     label?: string;
-}
-
-interface EnvironmentLog {
-    id?: number;
-    delivery_id: number;
-    start_temp: string | number;
-    start_humidity: string | number;
-    mid_temp: string | number;
-    mid_humidity: string | number;
-    end_temp: string | number;
-    end_humidity: string | number;
-    extra_logs: ExtraLog[];
-    corrective_action: string;
-    updated_at: string;
+    [key: string]: string | undefined;
 }
 
 interface EnvironmentLogFormProps {
-    delivery: { id: number; [key: string]: any };
-    envLog?: EnvironmentLog;
+    delivery: Delivery;
+    envLog?: GlobalEnvironmentLog | null;
     readOnly?: boolean;
 }
 
@@ -64,9 +52,9 @@ interface InputRowProps {
     isFilled: boolean;
     readOnly: boolean;
     isExtra?: boolean;
-    index?: number;
     extraLabel?: string;
     onTempChange: (value: string) => void;
+
     onHumChange: (value: string) => void;
     onExtraLabelChange?: (value: string) => void;
     onRemoveExtra?: () => void;
@@ -80,15 +68,15 @@ function InputRow({
     isFilled,
     readOnly,
     isExtra,
-    index,
     extraLabel,
     onTempChange,
+
     onHumChange,
     onExtraLabelChange,
     onRemoveExtra,
 }: InputRowProps) {
     return (
-        <div className="grid grid-cols-12 gap-2 items-center mb-3">
+        <div className="mb-3 grid grid-cols-12 items-center gap-2">
             <div className="col-span-12 sm:col-span-4">
                 {isExtra && !readOnly ? (
                     <div className="flex items-center gap-2">
@@ -97,8 +85,8 @@ function InputRow({
                         </Button>
                         <Input
                             value={extraLabel || ''}
-                            onChange={e => onExtraLabelChange?.(e.target.value)}
-                            className="h-7 text-xs py-0"
+                            onChange={(e) => onExtraLabelChange?.(e.target.value)}
+                            className="h-7 py-0 text-xs"
                             placeholder="Label"
                         />
                     </div>
@@ -106,19 +94,19 @@ function InputRow({
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
                 )}
             </div>
-            <div className="col-span-10 sm:col-span-6 grid grid-cols-2 gap-2">
+            <div className="col-span-10 grid grid-cols-2 gap-2 sm:col-span-6">
                 <div className="relative">
                     <Input
                         type="number"
                         step="0.01"
                         placeholder="Temp"
                         value={tempValue}
-                        onChange={e => onTempChange(e.target.value)}
+                        onChange={(e) => onTempChange(e.target.value)}
                         readOnly={readOnly}
-                        className={`pr-7 h-9 ${!isOk && isCompleteNumber(tempValue) ? 'border-red-500 ring-1 ring-red-500' : ''}`}
+                        className={`h-9 pr-7 ${!isOk && isCompleteNumber(tempValue) ? 'border-red-500 ring-1 ring-red-500' : ''}`}
                     />
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                        <span className="text-gray-500 text-[10px]">°F</span>
+                        <span className="text-[10px] text-gray-500">°F</span>
                     </div>
                 </div>
                 <div className="relative">
@@ -127,16 +115,16 @@ function InputRow({
                         step="0.01"
                         placeholder="Hum"
                         value={humValue}
-                        onChange={e => onHumChange(e.target.value)}
+                        onChange={(e) => onHumChange(e.target.value)}
                         readOnly={readOnly}
-                        className={`pr-7 h-9 ${!isOk && isCompleteNumber(humValue) ? 'border-red-500 ring-1 ring-red-500' : ''}`}
+                        className={`h-9 pr-7 ${!isOk && isCompleteNumber(humValue) ? 'border-red-500 ring-1 ring-red-500' : ''}`}
                     />
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                        <span className="text-gray-500 text-[10px]">%</span>
+                        <span className="text-[10px] text-gray-500">%</span>
                     </div>
                 </div>
             </div>
-            <div className="col-span-2 sm:col-span-2 flex justify-center">
+            <div className="col-span-2 flex justify-center sm:col-span-2">
                 {isFilled ? (
                     isOk ? (
                         <CheckCircle2 className="h-5 w-5 text-green-500" />
@@ -151,22 +139,37 @@ function InputRow({
     );
 }
 
+interface EnvironmentFormData {
+    [key: string]: string | number | boolean | ExtraLog[] | null | undefined;
+
+    start_temp: string | number;
+    start_humidity: string | number;
+    mid_temp: string | number;
+    mid_humidity: string | number;
+    end_temp: string | number;
+    end_humidity: string | number;
+    extra_logs: ExtraLog[];
+    corrective_action: string;
+}
+
 export default function EnvironmentForm({ delivery, envLog, readOnly = false }: EnvironmentLogFormProps) {
-    const { data, setData, post, processing, errors } = useForm<any>({
+    const { data, setData, post, processing, errors } = useForm<EnvironmentFormData>({
         start_temp: envLog?.start_temp ?? '',
         start_humidity: envLog?.start_humidity ?? '',
         mid_temp: envLog?.mid_temp ?? '',
         mid_humidity: envLog?.mid_humidity ?? '',
         end_temp: envLog?.end_temp ?? '',
         end_humidity: envLog?.end_humidity ?? '',
-        extra_logs: (envLog?.extra_logs ?? []) as ExtraLog[],
+        extra_logs: (envLog?.extra_logs ?? []) as unknown as ExtraLog[],
         corrective_action: envLog?.corrective_action ?? '',
     });
 
     const [showExcursionMessage, setShowExcursionMessage] = useState(false);
 
     const extraLogs = (data.extra_logs || []) as ExtraLog[];
-    const extraExcursion = extraLogs.some(log => isCompleteNumber(log.temp) || isCompleteNumber(log.humidity) ? !checkRange(log.temp, log.humidity) : false);
+    const extraExcursion = extraLogs.some((log) =>
+        isCompleteNumber(log.temp) || isCompleteNumber(log.humidity) ? !checkRange(log.temp, log.humidity) : false,
+    );
     const sOk = checkRange(data.start_temp, data.start_humidity);
     const mOk = checkRange(data.mid_temp, data.mid_humidity);
     const eOk = checkRange(data.end_temp, data.end_humidity);
@@ -208,9 +211,9 @@ export default function EnvironmentForm({ delivery, envLog, readOnly = false }: 
 
     return (
         <div className="mt-4 border-t border-gray-100 pt-4 dark:border-gray-700">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center justify-between">
+            <h3 className="mb-3 flex items-center justify-between text-sm font-medium text-gray-900 dark:text-gray-100">
                 <span>Temperature & Humidity Log</span>
-                <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full dark:bg-blue-900/40 dark:text-blue-300">
+                <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
                     Limits: {TEMP_MIN}-{TEMP_MAX}°F / {HUM_MIN}-{HUM_MAX}%
                 </span>
             </h3>
@@ -224,8 +227,8 @@ export default function EnvironmentForm({ delivery, envLog, readOnly = false }: 
                     isOk={sOk}
                     isFilled={data.start_temp !== '' || data.start_humidity !== ''}
                     readOnly={readOnly}
-                    onTempChange={v => setData('start_temp', v)}
-                    onHumChange={v => setData('start_humidity', v)}
+                    onTempChange={(v) => setData('start_temp', v)}
+                    onHumChange={(v) => setData('start_humidity', v)}
                 />
                 <InputRow
                     label="Mid-Route"
@@ -235,8 +238,8 @@ export default function EnvironmentForm({ delivery, envLog, readOnly = false }: 
                     isOk={mOk}
                     isFilled={data.mid_temp !== '' || data.mid_humidity !== ''}
                     readOnly={readOnly}
-                    onTempChange={v => setData('mid_temp', v)}
-                    onHumChange={v => setData('mid_humidity', v)}
+                    onTempChange={(v) => setData('mid_temp', v)}
+                    onHumChange={(v) => setData('mid_humidity', v)}
                 />
                 <InputRow
                     label="End of Shift"
@@ -246,8 +249,8 @@ export default function EnvironmentForm({ delivery, envLog, readOnly = false }: 
                     isOk={eOk}
                     isFilled={data.end_temp !== '' || data.end_humidity !== ''}
                     readOnly={readOnly}
-                    onTempChange={v => setData('end_temp', v)}
-                    onHumChange={v => setData('end_humidity', v)}
+                    onTempChange={(v) => setData('end_temp', v)}
+                    onHumChange={(v) => setData('end_humidity', v)}
                 />
 
                 {extraLogs.map((log, idx) => (
@@ -260,11 +263,10 @@ export default function EnvironmentForm({ delivery, envLog, readOnly = false }: 
                         isFilled={log.temp !== '' || log.humidity !== ''}
                         readOnly={readOnly}
                         isExtra
-                        index={idx}
                         extraLabel={log.label}
-                        onTempChange={v => updateExtraLog(idx, 'temp', v)}
-                        onHumChange={v => updateExtraLog(idx, 'humidity', v)}
-                        onExtraLabelChange={v => updateExtraLog(idx, 'label', v)}
+                        onTempChange={(v) => updateExtraLog(idx, 'temp', v)}
+                        onHumChange={(v) => updateExtraLog(idx, 'humidity', v)}
+                        onExtraLabelChange={(v) => updateExtraLog(idx, 'label', v)}
                         onRemoveExtra={() => removeExtraLog(idx)}
                     />
                 ))}
@@ -274,24 +276,25 @@ export default function EnvironmentForm({ delivery, envLog, readOnly = false }: 
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="w-full border-dashed border-2 py-4 h-auto text-muted-foreground hover:text-foreground"
+                        className="h-auto w-full border-2 border-dashed py-4 text-muted-foreground hover:text-foreground"
                         onClick={addExtraLog}
                     >
-                        <Plus className="h-4 w-4 mr-2" />
+                        <Plus className="mr-2 h-4 w-4" />
                         Add Extra Reading
                     </Button>
                 )}
 
-                {(showExcursionMessage && hasExcursion) && (
-                    <div className="rounded-md bg-orange-50 p-4 border border-orange-200 dark:bg-orange-900/30 dark:border-orange-800">
+                {showExcursionMessage && hasExcursion && (
+                    <div className="rounded-md border border-orange-200 bg-orange-50 p-4 dark:border-orange-800 dark:bg-orange-900/30">
                         <div className="flex">
                             <div className="flex-shrink-0">
                                 <AlertTriangle className="h-5 w-5 text-orange-400 dark:text-orange-500" aria-hidden="true" />
                             </div>
                             <div className="ml-3 flex-1">
                                 <h3 className="text-sm font-medium text-orange-800 dark:text-orange-300">Out of Range Reading Detected</h3>
-                                <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">
-                                    If any reading is outside {TEMP_MIN}-{TEMP_MAX}°F or {HUM_MIN}-{HUM_MAX}%, describe the corrective action below before saving.
+                                <p className="mt-1 text-xs text-orange-700 dark:text-orange-300">
+                                    If any reading is outside {TEMP_MIN}-{TEMP_MAX}°F or {HUM_MIN}-{HUM_MAX}%, describe the corrective action below
+                                    before saving.
                                 </p>
                                 <div className="mt-2 text-sm text-orange-700">
                                     <Label htmlFor="corrective_action" className="text-orange-900 dark:text-orange-200">
@@ -303,7 +306,7 @@ export default function EnvironmentForm({ delivery, envLog, readOnly = false }: 
                                             rows={2}
                                             required={hasExcursion}
                                             value={data.corrective_action as string}
-                                            onChange={e => setData('corrective_action', e.target.value)}
+                                            onChange={(e) => setData('corrective_action', e.target.value)}
                                             readOnly={readOnly}
                                             className="bg-white dark:bg-gray-800"
                                             placeholder="What steps were taken to resolve this?"
@@ -317,12 +320,12 @@ export default function EnvironmentForm({ delivery, envLog, readOnly = false }: 
                 )}
 
                 {!readOnly && (
-                    <div className="pt-3 flex items-center justify-between gap-4">
+                    <div className="flex items-center justify-between gap-4 pt-3">
                         <Button type="submit" disabled={processing} className="w-full sm:w-auto">
                             Save Log
                         </Button>
                         {envLog && (
-                            <span className="text-[10px] text-gray-500 dark:text-gray-400 italic">
+                            <span className="text-[10px] text-gray-500 italic dark:text-gray-400">
                                 Last saved: {new Date(envLog.updated_at).toLocaleString()}
                             </span>
                         )}

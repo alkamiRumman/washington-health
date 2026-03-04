@@ -4,25 +4,25 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { type PropsWithChildren } from 'react';
 import { Image, LockIcon, UsersIcon } from 'lucide-react';
+import { type PropsWithChildren } from 'react';
 
 const sidebarNavItems: NavItem[] = [
     {
         title: 'Profile',
         href: '/settings/profile',
-        icon: <UsersIcon/>,
+        icon: <UsersIcon />,
     },
     {
         title: 'Password',
         href: '/settings/password',
-        icon: <LockIcon/>,
+        icon: <LockIcon />,
     },
     {
         title: 'Appearance',
         href: '/settings/appearance',
-        icon: <Image/>,
-    }
+        icon: <Image />,
+    },
 ];
 
 export default function SettingsLayout({ children }: PropsWithChildren) {
@@ -39,7 +39,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
 
             <div className="flex flex-col space-y-0 lg:flex-row lg:space-y-0 lg:space-x-12">
                 <aside className="w-full max-w-xl lg:w-64">
-                    <nav className="flex md:flex-col space-y-1 space-x-0">
+                    <nav className="flex space-y-1 space-x-0 md:flex-col">
                         {sidebarNavItems.map((item, index) => (
                             <Button
                                 key={`${item.href}-${index}`}

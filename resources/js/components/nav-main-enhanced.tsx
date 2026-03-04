@@ -1,26 +1,26 @@
-import type React from "react"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
     SidebarGroup,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
     SidebarMenuSub,
-    SidebarMenuSubItem,
     SidebarMenuSubButton,
-} from "@/components/ui/sidebar"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+    SidebarMenuSubItem,
+} from '@/components/ui/sidebar';
 import { Link, usePage } from '@inertiajs/react';
-import { ChevronDown } from "lucide-react"
+import { ChevronDown } from 'lucide-react';
+import type React from 'react';
 
 interface NavItem {
-    title: string
-    href: string
-    icon: React.ComponentType<any>
-    items?: NavItem[]
+    title: string;
+    href: string;
+    icon: React.ComponentType<any>;
+    items?: NavItem[];
 }
 
 interface NavMainProps {
-    items: NavItem[]
+    items: NavItem[];
 }
 
 export function NavMainEnhanced({ items }: NavMainProps) {
@@ -70,5 +70,5 @@ export function NavMainEnhanced({ items }: NavMainProps) {
                 ))}
             </SidebarMenu>
         </SidebarGroup>
-    )
+    );
 }

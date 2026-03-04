@@ -1,16 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Bell, Check, Trash2, Package, RefreshCw, ChevronRight } from 'lucide-react';
+import { ActionConfirmDialog } from '@/components/ActionConfirmDialog';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { router } from '@inertiajs/react';
 import axios from 'axios';
 import { formatDistanceToNow } from 'date-fns';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { ActionConfirmDialog } from '@/components/ActionConfirmDialog';
+import { Bell, Check, ChevronRight, Package, RefreshCw, Trash2 } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 interface Notification {
     id: string;
@@ -69,24 +65,32 @@ export default function NotificationDropdown({ children }: NotificationDropdownP
     }, [fetchNotifications]);
 
     const markAsRead = (id: string) => {
-        router.post(`/notifications/${id}/mark-read`, {}, {
-            preserveScroll: true,
-            onSuccess: () => fetchNotifications()
-        });
+        router.post(
+            `/notifications/${id}/mark-read`,
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => fetchNotifications(),
+            },
+        );
     };
 
     const markAllAsRead = () => {
-        router.post('/notifications/mark-read', {}, {
-            preserveScroll: true,
-            onSuccess: () => fetchNotifications()
-        });
+        router.post(
+            '/notifications/mark-read',
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => fetchNotifications(),
+            },
+        );
     };
 
     const clearAll = () => {
         setClearConfirmOpen(false);
         router.delete('/notifications/clear', {
             preserveScroll: true,
-            onSuccess: () => fetchNotifications()
+            onSuccess: () => fetchNotifications(),
         });
     };
 
@@ -98,9 +102,16 @@ export default function NotificationDropdown({ children }: NotificationDropdownP
 
     return (
         <>
-            <DropdownMenu open={dropdownOpen} onOpenChange={(open) => { setDropdownOpen(open); }}>
+            <DropdownMenu
+                open={dropdownOpen}
+                onOpenChange={(open) => {
+                    setDropdownOpen(open);
+                }}
+            >
                 <DropdownMenuTrigger asChild>
-                    {children ? children : (
+                    {children ? (
+                        children
+                    ) : (
                         <button
                             type="button"
                             className="relative flex items-center space-x-1.5 rounded-lg px-2.5 py-1.5 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
@@ -116,17 +127,12 @@ export default function NotificationDropdown({ children }: NotificationDropdownP
                         </button>
                     )}
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-[400px] p-0 rounded-xl shadow-lg border" sideOffset={18}>
-                    <div className="flex items-center justify-between border-b bg-muted/30 px-4 py-3 rounded-t-xl">
+                <DropdownMenuContent align="end" className="w-[400px] rounded-xl border p-0 shadow-lg" sideOffset={18}>
+                    <div className="flex items-center justify-between rounded-t-xl border-b bg-muted/30 px-4 py-3">
                         <h3 className="text-sm font-semibold text-foreground">Notifications</h3>
                         <div className="flex items-center gap-1">
                             {unreadCount > 0 && (
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-8 text-xs"
-                                    onClick={markAllAsRead}
-                                >
+                                <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={markAllAsRead}>
                                     <Check className="mr-1.5 h-3.5 w-3.5" />
                                     Mark all read
                                 </Button>
@@ -156,28 +162,23 @@ export default function NotificationDropdown({ children }: NotificationDropdownP
                         ) : (
                             <div className="divide-y">
                                 {notifications.map((n) => (
-                                    <div
-                                        key={n.id}
-                                        className={`px-4 py-3 transition-colors hover:bg-muted/50 ${!n.read_at ? 'bg-primary/5' : ''}`}
-                                    >
+                                    <div key={n.id} className={`px-4 py-3 transition-colors hover:bg-muted/50 ${!n.read_at ? 'bg-primary/5' : ''}`}>
                                         <div className="flex justify-between gap-2">
-                                            <span className="text-xs font-semibold uppercase tracking-wide text-primary">
-                                                {n.data.title}
-                                            </span>
+                                            <span className="text-xs font-semibold tracking-wide text-primary uppercase">{n.data.title}</span>
                                             <span className="shrink-0 text-[11px] text-muted-foreground">
                                                 {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
                                             </span>
                                         </div>
                                         <p className="mt-1 text-sm text-foreground">{n.data.message}</p>
                                         <div className="mt-2 flex items-center justify-between gap-2">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => goToDetails(n)}
-                                                    className="inline-flex items-center text-xs font-medium text-primary hover:underline"
-                                                >
-                                                    View details
-                                                    <ChevronRight className="ml-1 h-3 w-3" />
-                                                </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => goToDetails(n)}
+                                                className="inline-flex items-center text-xs font-medium text-primary hover:underline"
+                                            >
+                                                View details
+                                                <ChevronRight className="ml-1 h-3 w-3" />
+                                            </button>
                                             {!n.read_at && (
                                                 <button
                                                     type="button"

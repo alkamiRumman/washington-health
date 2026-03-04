@@ -3,7 +3,7 @@ import { type BreadcrumbItem } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { useEffect, type ReactNode } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';  // Import CSS globally
+import 'react-toastify/dist/ReactToastify.css'; // Import CSS globally
 
 interface AppLayoutProps {
     children: ReactNode;
@@ -25,10 +25,7 @@ export default function AppLayout({ children, breadcrumbs, ...props }: AppLayout
 
     return (
         <AppLayoutTemplate breadcrumbs={breadcrumbs} {...props}>
-            <ToastContainer
-                position="bottom-right"
-                autoClose={3000}
-            />
+            <ToastContainer position="bottom-right" autoClose={3000} />
             {children}
         </AppLayoutTemplate>
     );

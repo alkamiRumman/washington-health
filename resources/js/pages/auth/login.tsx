@@ -102,7 +102,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                     </div>
                     <Table className="border">
                         <TableHeader>
-                            <TableRow className='bg-gray-300 dark:bg-gray-700'>
+                            <TableRow className="bg-gray-300 dark:bg-gray-700">
                                 <TableCell>Email Address</TableCell>
                                 <TableCell>Password</TableCell>
                                 <TableCell>User Type</TableCell>

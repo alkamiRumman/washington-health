@@ -1,10 +1,11 @@
 import { Breadcrumbs } from '@/components/breadcrumbs';
+import NotificationDropdown from '@/components/NotificationDropdown';
+import { Button } from '@/components/ui/button';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Link, router, usePage } from '@inertiajs/react';
-import { Bell, LogOut, Settings, LayoutGrid, Users, Truck, FileBarChart, PlusSquare } from 'lucide-react';
-import React from 'react';
-import NotificationDropdown from './NotificationDropdown';
 import { confirmAction } from '@/utils/alerts';
+import { Link, router, usePage } from '@inertiajs/react';
+import { Bell, CheckCircle2, FileBarChart, LayoutGrid, LogOut, PlusSquare, Settings, ShoppingBag, Truck, Users } from 'lucide-react';
+import React from 'react';
 
 export interface NavItem {
     title: string;
@@ -27,19 +28,20 @@ const getNavItems = (role: string): NavItem[] => {
                 { title: 'Dashboard', href: '/admin/dashboard', icon: LayoutGrid },
                 { title: 'Users', href: '/admin/users', icon: Users },
                 { title: 'Vehicles', href: '/admin/vehicles', icon: Truck },
-                { title: 'All Deliveries', href: '/admin/deliveries', icon: Truck },
+                { title: 'All Deliveries', href: '/admin/deliveries', icon: ShoppingBag },
                 { title: 'Reports', href: '/admin/reports', icon: FileBarChart },
             ];
         case 'officer':
             return [
                 { title: 'Dashboard', href: '/officer/dashboard', icon: LayoutGrid },
-                { title: 'Deliveries', href: '/officer/deliveries', icon: Truck },
+                { title: 'Deliveries', href: '/officer/deliveries', icon: ShoppingBag },
                 { title: 'Create Delivery', href: '/officer/deliveries/create', icon: PlusSquare },
             ];
         case 'driver':
             return [
                 { title: 'Dashboard', href: '/driver/dashboard', icon: LayoutGrid },
-                { title: 'My Deliveries', href: '/driver/deliveries', icon: Truck },
+                { title: 'My Deliveries', href: '/driver/deliveries', icon: ShoppingBag },
+                { title: 'Completed', href: '/driver/deliveries/completed', icon: CheckCircle2 },
             ];
         default:
             return [];
@@ -50,7 +52,7 @@ export function AppHeader({ breadcrumbs = [], navItems: propNavItems = [] }: App
     const page = usePage<SharedData>();
     const { auth } = page.props;
     const role = (auth?.user?.role as string) || 'driver';
-    
+
     // Auto-fill navItems if none provided (e.g. Settings pages)
     const navItems = propNavItems.length > 0 ? propNavItems : getNavItems(role);
 
@@ -61,7 +63,7 @@ export function AppHeader({ breadcrumbs = [], navItems: propNavItems = [] }: App
     const { url } = usePage() as unknown as { url: string };
     const isActive = (paths: string | string[]) => {
         if (Array.isArray(paths)) {
-            return paths.some(path => url.startsWith(path));
+            return paths.some((path) => url.startsWith(path));
         }
         if (paths === url) return true;
         // Deliveries pages: active when current path starts with the nav path
@@ -73,136 +75,86 @@ export function AppHeader({ breadcrumbs = [], navItems: propNavItems = [] }: App
         return false;
     };
 
-
-
     return (
         <>
-            <header className="bg-white shadow-md dark:bg-gray-800">
-                <div className="container mx-auto px-4 md:max-w-4/5">
-                    <div className="flex h-16 items-center justify-between">
-                        <Link href={dashboardRoute} className="flex items-center">
-                            <span className="hidden text-2xl font-bold text-blue-600 md:block dark:text-blue-400">{appName}</span>
-                            <span className="text-2xl font-bold text-blue-600 md:hidden dark:text-blue-400">{shortName}</span>
+            <header className="sticky top-0 z-40 w-full border-b bg-white/95 shadow-sm backdrop-blur transition-all supports-[backdrop-filter]:bg-white/60 dark:bg-gray-800/95 dark:supports-[backdrop-filter]:bg-gray-800/60">
+                <div className="mx-auto px-4 md:max-w-5/6 md:px-0">
+                    <div className="flex h-16 gap-2 md:gap-4">
+                        <Link href={dashboardRoute} className="flex shrink-0 items-center">
+                            <span className="hidden text-2xl font-bold tracking-tight text-blue-600 lg:block dark:text-blue-400">{appName}</span>
+                            <span className="text-xl font-bold tracking-tight text-blue-600 lg:hidden dark:text-blue-400">{shortName}</span>
                         </Link>
 
-                        <nav className="hidden md:block">
-                            <ul className="flex space-x-8">
+                        {/* Navigation */}
+                        <nav className="flex flex-1 items-center justify-center sm:justify-end md:justify-center">
+                            <ul className="flex items-center space-x-1 sm:space-x-2 md:space-x-4">
                                 {navItems.map((item) => {
                                     const Icon = item.icon;
+                                    const active = isActive(item.href);
                                     return (
                                         <li key={item.href}>
                                             <Link
                                                 href={item.href}
-                                                className={`flex items-center space-x-1 transition-colors hover:text-blue-600 dark:hover:text-blue-400 ${
-                                                    isActive(item.href)
-                                                        ? 'font-medium text-amber-600 dark:text-amber-400'
+                                                title={item.title}
+                                                className={`flex items-center space-x-2 rounded-md px-2 py-2 text-sm font-medium transition-all hover:bg-blue-50 hover:text-blue-600 sm:px-3 dark:hover:bg-gray-700 dark:hover:text-blue-400 ${
+                                                    active
+                                                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
                                                         : 'text-gray-600 dark:text-gray-300'
                                                 }`}
                                             >
                                                 <Icon size={18} />
-                                                <span>{item.title}</span>
+                                                <span className="hidden xl:inline">{item.title}</span>
                                             </Link>
                                         </li>
                                     );
                                 })}
-                                <li>
-                                    <NotificationDropdown>
-                                        <button
-                                            type="button"
-                                            className={`relative flex items-center space-x-1 transition-colors hover:text-blue-600 dark:hover:text-blue-400 ${
-                                                isActive('/notifications') ? 'font-medium text-amber-600 dark:text-amber-400' : 'text-gray-600 dark:text-gray-300'
-                                            }`}
-                                        >
-                                            <Bell size={18} />
-                                            <span>Notifications</span>
-                                            {auth.unread_notifications_count > 0 && (
-                                                <span className="absolute -top-1.5 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white ring-2 ring-white dark:ring-gray-800">
-                                                    {auth.unread_notifications_count > 9 ? '9+' : auth.unread_notifications_count}
-                                                </span>
-                                            )}
-                                        </button>
-                                    </NotificationDropdown>
-                                </li>
-                                <li>
-                                    <Link
-                                        href="/settings/profile"
-                                        className={`flex items-center space-x-1 transition-colors hover:text-blue-600 dark:hover:text-blue-400 ${
-                                            isActive(settingRoutes)
-                                                ? 'font-medium text-amber-600 dark:text-amber-400'
-                                                : 'text-gray-600 dark:text-gray-300'
-                                        }`}
-                                    >
-                                        <Settings size={18} />
-                                        <span>Settings</span>
-                                    </Link>
-                                </li>
-                                <li>
-                                    <button
-                                        onClick={async () => {
-                                            if (await confirmAction('Logout', 'Are you sure you want to log out?', 'info')) {
-                                                router.post(route('logout'));
-                                            }
-                                        }}
-                                        className="flex items-center space-x-1 transition-colors hover:text-red-600 dark:hover:text-red-400 text-gray-600 dark:text-gray-300"
-                                    >
-                                        <LogOut size={18} />
-                                        <span>Logout</span>
-                                    </button>
-                                </li>
                             </ul>
                         </nav>
 
-                        {/* Mobile menu */}
-                        <div className="flex space-x-5 md:hidden">
-                            {navItems.map((item) => {
-                                const Icon = item.icon;
-                                return (
-                                    <Link
-                                        key={item.href}
-                                        href={item.href}
-                                        className={isActive(item.href) ? 'text-amber-600 dark:text-amber-400' : 'text-gray-600 dark:text-gray-300'}
-                                    >
-                                        <Icon />
-                                    </Link>
-                                );
-                            })}
+                        {/* Right Section Tools */}
+                        <div className="flex items-center space-x-1 md:space-x-2">
                             <NotificationDropdown>
-                                <button
-                                    type="button"
-                                    className="relative flex items-center space-x-1 transition-colors hover:text-blue-600 dark:hover:text-blue-400 text-gray-600 dark:text-gray-300"
-                                >
-                                    <Bell size={20} />
+                                <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-full sm:h-10 sm:w-10">
+                                    <Bell className="h-[1.2rem] w-[1.2rem] text-gray-600 dark:text-gray-300" />
                                     {auth.unread_notifications_count > 0 && (
-                                        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white ring-2 ring-white dark:ring-gray-800">
+                                        <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white ring-2 ring-white dark:ring-gray-800">
                                             {auth.unread_notifications_count > 9 ? '9+' : auth.unread_notifications_count}
                                         </span>
                                     )}
-                                </button>
+                                </Button>
                             </NotificationDropdown>
-                            <Link
-                                href="/settings/profile"
-                                className={isActive(settingRoutes) ? 'text-amber-600 dark:text-amber-400' : 'text-gray-600 dark:text-gray-300'}
-                            >
-                                <Settings size={20} />
+
+                            <Link href="/settings/profile" title="Settings">
+                                <Button
+                                    variant={isActive(settingRoutes) ? 'secondary' : 'ghost'}
+                                    size="icon"
+                                    className="h-9 w-9 rounded-full sm:h-10 sm:w-10"
+                                >
+                                    <Settings className="h-[1.2rem] w-[1.2rem] text-gray-600 dark:text-gray-300" />
+                                </Button>
                             </Link>
-                            <button
+
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                title="Logout"
+                                className="h-9 w-9 rounded-full text-gray-600 hover:text-red-600 sm:h-10 sm:w-10 dark:text-gray-300 dark:hover:text-red-400"
                                 onClick={async () => {
                                     if (await confirmAction('Logout', 'Are you sure you want to log out?', 'info')) {
                                         router.post(route('logout'));
                                     }
                                 }}
-                                className="text-gray-600 dark:text-gray-300"
                             >
-                                <LogOut size={20} />
-                            </button>
+                                <LogOut className="h-[1.2rem] w-[1.2rem]" />
+                            </Button>
                         </div>
                     </div>
                 </div>
             </header>
 
             {breadcrumbs.length > 1 && (
-                <div className="flex w-full border-b border-sidebar-border/70">
-                    <div className="mx-auto flex h-12 w-full items-center justify-start px-4 text-neutral-500 md:max-w-7xl">
+                <div className="flex w-full border-b border-sidebar-border/70 bg-white/50 backdrop-blur-sm dark:bg-gray-900/50">
+                    <div className="mx-auto flex h-10 w-full items-center justify-start px-4 text-xs font-medium text-neutral-500 sm:px-6 md:max-w-5/6 lg:px-8">
                         <Breadcrumbs breadcrumbs={breadcrumbs} />
                     </div>
                 </div>

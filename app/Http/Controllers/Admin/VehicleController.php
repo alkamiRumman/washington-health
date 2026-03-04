@@ -89,4 +89,18 @@ class VehicleController extends Controller
 
         return redirect()->route('admin.vehicles.index')->with('success', 'Vehicle deactivated successfully.');
     }
+
+    /**
+     * Update the status of the vehicle.
+     */
+    public function updateStatus(Request $request, Vehicle $vehicle)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:active,inactive,maintenance',
+        ]);
+
+        $vehicle->update($validated);
+
+        return redirect()->back()->with('success', 'Vehicle status updated.');
+    }
 }

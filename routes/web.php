@@ -48,6 +48,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('reports/chain-of-custody-log', [\App\Http\Controllers\Admin\DashboardController::class, 'chainOfCustodyLog'])->name('reports.coc-log');
         Route::get('reports/vehicle-inspection-log', [\App\Http\Controllers\Admin\DashboardController::class, 'vehicleInspectionLog'])->name('reports.vehicle-log');
         Route::resource('vehicles', \App\Http\Controllers\Admin\VehicleController::class);
+        Route::patch('vehicles/{vehicle}/status', [\App\Http\Controllers\Admin\VehicleController::class, 'updateStatus'])->name('vehicles.status');
     });
 
     // OFFICER Routes

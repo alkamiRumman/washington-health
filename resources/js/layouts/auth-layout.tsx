@@ -18,10 +18,7 @@ export default function AuthLayout({ children, title, description, ...props }: {
 
     return (
         <AuthLayoutTemplate title={title} description={description} {...props}>
-            <ToastContainer
-                position="bottom-right"
-                autoClose={3000}
-            />
+            <ToastContainer position="bottom-right" autoClose={3000} />
             {children}
         </AuthLayoutTemplate>
     );

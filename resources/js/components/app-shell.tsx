@@ -1,7 +1,7 @@
+import DeliveryUpdatesListener from '@/components/DeliveryUpdatesListener';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
-import DeliveryUpdatesListener from '@/components/DeliveryUpdatesListener';
 
 interface AppShellProps {
     children: React.ReactNode;

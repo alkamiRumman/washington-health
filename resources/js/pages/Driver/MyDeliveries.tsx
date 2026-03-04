@@ -1,34 +1,45 @@
-import DriverLayout from '@/layouts/DriverLayout';
-import { Head, router, Link } from '@inertiajs/react';
-import { useState, useCallback } from 'react';
-import { ArrowRight, Package, Calendar, Truck, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
-import ElapsedTimer from '@/components/ElapsedTimer';
-import ChecklistForm from '@/components/ChecklistForm';
-import EnvironmentForm from '@/components/EnvironmentForm';
-import ChainOfCustodyForm from '@/components/ChainOfCustodyForm';
 import { ActionConfirmDialog } from '@/components/ActionConfirmDialog';
+import ChainOfCustodyForm from '@/components/ChainOfCustodyForm';
+import ChecklistForm from '@/components/ChecklistForm';
+import ElapsedTimer from '@/components/ElapsedTimer';
+import EnvironmentForm from '@/components/EnvironmentForm';
 import { Button } from '@/components/ui/button';
+import DriverLayout from '@/layouts/DriverLayout';
+import { Head, Link, router } from '@inertiajs/react';
+import { AlertCircle, ArrowRight, Calendar, CheckCircle2, Clock, Package, Truck } from 'lucide-react';
+import { useCallback, useState } from 'react';
 
 function getStatusColor(status: string) {
     switch (status) {
-        case 'pending': return 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200 ring-amber-600/20';
-        case 'assigned': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200 ring-blue-600/20';
-        case 'picked_up': return 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200 ring-amber-600/20';
+        case 'pending':
+            return 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200 ring-amber-600/20';
+        case 'assigned':
+            return 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200 ring-blue-600/20';
+        case 'picked_up':
+            return 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200 ring-amber-600/20';
         case 'in_transit':
-        case 'in_progress': return 'bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-200 ring-violet-600/20';
-        case 'completed': return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200 ring-emerald-600/20';
-        default: return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+        case 'in_progress':
+            return 'bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-200 ring-violet-600/20';
+        case 'completed':
+            return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200 ring-emerald-600/20';
+        default:
+            return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
     }
 }
 
 function getStatusIcon(status: string) {
     switch (status) {
-        case 'assigned': return <AlertCircle className="h-4 w-4" />;
-        case 'picked_up': return <Package className="h-4 w-4" />;
+        case 'assigned':
+            return <AlertCircle className="h-4 w-4" />;
+        case 'picked_up':
+            return <Package className="h-4 w-4" />;
         case 'in_transit':
-        case 'in_progress': return <Clock className="h-4 w-4" />;
-        case 'completed': return <CheckCircle2 className="h-4 w-4" />;
-        default: return <Package className="h-4 w-4" />;
+        case 'in_progress':
+            return <Clock className="h-4 w-4" />;
+        case 'completed':
+            return <CheckCircle2 className="h-4 w-4" />;
+        default:
+            return <Package className="h-4 w-4" />;
     }
 }
 
@@ -41,9 +52,7 @@ function groupDeliveriesByDate(deliveries: { scheduled_time: string }[]) {
 
     const byDate = new Map<string, { dateLabel: string; dateKey: string; deliveries: typeof deliveries }>();
 
-    const sorted = [...deliveries].sort(
-        (a, b) => new Date(a.scheduled_time).getTime() - new Date(b.scheduled_time).getTime()
-    );
+    const sorted = [...deliveries].sort((a, b) => new Date(a.scheduled_time).getTime() - new Date(b.scheduled_time).getTime());
 
     for (const d of sorted) {
         const dt = new Date(d.scheduled_time);
@@ -55,7 +64,12 @@ function groupDeliveriesByDate(deliveries: { scheduled_time: string }[]) {
         } else if (dDate.getTime() === tomorrow.getTime()) {
             dateLabel = 'Tomorrow';
         } else {
-            dateLabel = dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: dt.getFullYear() !== today.getFullYear() ? 'numeric' : undefined });
+            dateLabel = dt.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                year: dt.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
+            });
         }
         if (!byDate.has(dateKey)) {
             byDate.set(dateKey, { dateLabel, dateKey, deliveries: [] });
@@ -76,24 +90,29 @@ interface DeliveryCardProps {
 }
 
 function DeliveryCard({ delivery, hasInProgress, canStartDelivery, onStartClick, onEndClick, onChecklistCompleteChange }: DeliveryCardProps) {
-    const handleChecklistChange = useCallback((complete: boolean) => {
-        onChecklistCompleteChange(delivery.id, complete);
-    }, [delivery.id, onChecklistCompleteChange]);
+    const handleChecklistChange = useCallback(
+        (complete: boolean) => {
+            onChecklistCompleteChange(delivery.id, complete);
+        },
+        [delivery.id, onChecklistCompleteChange],
+    );
 
     const scheduled = new Date(delivery.scheduled_time);
     const timeStr = scheduled.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
     const dateStr = scheduled.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
     return (
-        <article className="group relative flex flex-col rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800/50 overflow-hidden">
+        <article className="group relative flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800/50">
             {/* Time + status header row */}
             <div className="flex items-stretch border-b border-gray-100 dark:border-gray-700">
-                <div className="flex flex-col justify-center bg-gray-50 dark:bg-gray-800/80 px-4 py-3 min-w-[5.5rem] border-r border-gray-100 dark:border-gray-700">
-                    <span className="text-lg font-semibold tabular-nums text-foreground leading-tight">{timeStr}</span>
-                    <span className="text-[11px] text-muted-foreground mt-0.5">{dateStr}</span>
+                <div className="flex min-w-[5.5rem] flex-col justify-center border-r border-gray-100 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800/80">
+                    <span className="text-lg leading-tight font-semibold text-foreground tabular-nums">{timeStr}</span>
+                    <span className="mt-0.5 text-[11px] text-muted-foreground">{dateStr}</span>
                 </div>
                 <div className="flex flex-1 items-center justify-between gap-3 px-4 py-3">
-                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${getStatusColor(delivery.status)}`}>
+                    <span
+                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${getStatusColor(delivery.status)}`}
+                    >
                         {getStatusIcon(delivery.status)}
                         {delivery.status.replace('_', ' ').toUpperCase()}
                     </span>
@@ -105,15 +124,19 @@ function DeliveryCard({ delivery, hasInProgress, canStartDelivery, onStartClick,
             <div className="flex flex-1 flex-col gap-4 p-5">
                 <div className="flex items-stretch gap-3">
                     <div className="flex min-w-0 flex-1 flex-col rounded-lg bg-gray-50/80 p-3 dark:bg-gray-800/80">
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Pickup</p>
-                        <p className="mt-0.5 text-sm font-medium text-foreground truncate" title={delivery.pickup_location}>{delivery.pickup_location}</p>
+                        <p className="text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">Pickup</p>
+                        <p className="mt-0.5 truncate text-sm font-medium text-foreground" title={delivery.pickup_location}>
+                            {delivery.pickup_location}
+                        </p>
                     </div>
                     <div className="flex shrink-0 items-center text-muted-foreground">
                         <ArrowRight className="h-5 w-5" aria-hidden />
                     </div>
-                    <div className="flex min-w-0 flex-1 flex-col rounded-lg bg-gray-50/80 p-3 dark:bg-gray-800/80 text-right">
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Delivery</p>
-                        <p className="mt-0.5 text-sm font-medium text-foreground truncate" title={delivery.delivery_location}>{delivery.delivery_location}</p>
+                    <div className="flex min-w-0 flex-1 flex-col rounded-lg bg-gray-50/80 p-3 text-right dark:bg-gray-800/80">
+                        <p className="text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">Delivery</p>
+                        <p className="mt-0.5 truncate text-sm font-medium text-foreground" title={delivery.delivery_location}>
+                            {delivery.delivery_location}
+                        </p>
                     </div>
                 </div>
 
@@ -126,7 +149,7 @@ function DeliveryCard({ delivery, hasInProgress, canStartDelivery, onStartClick,
                         </span>
                     )}
                     {delivery.status === 'completed' && delivery.duration_minutes != null && (
-                        <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
+                        <span className="inline-flex items-center gap-1.5 font-medium text-emerald-600 dark:text-emerald-400">
                             <CheckCircle2 className="h-3.5 w-3.5" />
                             {delivery.duration_minutes} min
                         </span>
@@ -137,18 +160,13 @@ function DeliveryCard({ delivery, hasInProgress, canStartDelivery, onStartClick,
             {/* Checklist (assigned only) */}
             {delivery.status === 'assigned' && (
                 <div className="border-t border-gray-100 px-5 py-4 dark:border-gray-700">
-                    <ChecklistForm
-                        key={delivery.id}
-                        delivery={delivery}
-                        checklist={delivery.checklist}
-                        onAllCompleteChange={handleChecklistChange}
-                    />
+                    <ChecklistForm key={delivery.id} delivery={delivery} checklist={delivery.checklist} onAllCompleteChange={handleChecklistChange} />
                 </div>
             )}
 
             {/* Env + CoC (in transit / completed) */}
             {(delivery.status === 'in_transit' || delivery.status === 'in_progress' || delivery.status === 'completed') && (
-                <div className="border-t border-gray-100 px-5 py-4 dark:border-gray-700 space-y-4">
+                <div className="space-y-4 border-t border-gray-100 px-5 py-4 dark:border-gray-700">
                     <EnvironmentForm delivery={delivery} envLog={delivery.environment_log} readOnly={delivery.status === 'completed'} />
                     <ChainOfCustodyForm delivery={delivery} coc={delivery.chain_of_custody} readOnly={delivery.status === 'completed'} />
                 </div>
@@ -161,14 +179,19 @@ function DeliveryCard({ delivery, hasInProgress, canStartDelivery, onStartClick,
                         <Button
                             onClick={() => onStartClick(delivery.id)}
                             disabled={hasInProgress || !canStartDelivery(delivery)}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                            className="bg-emerald-600 text-white hover:bg-emerald-700"
                         >
                             Start Delivery
                         </Button>
                         {hasInProgress ? (
                             <span className="text-xs text-amber-600 dark:text-amber-400">Finish your current delivery before starting another.</span>
-                        ) : (delivery.status === 'assigned' && !canStartDelivery(delivery)) && (
-                            <span className="text-xs text-muted-foreground">Complete all checklist items above (and click Save Checklist to store)</span>
+                        ) : (
+                            delivery.status === 'assigned' &&
+                            !canStartDelivery(delivery) && (
+                                <span className="text-xs text-muted-foreground">
+                                    Complete all checklist items above (and click Save Checklist to store)
+                                </span>
+                            )
                         )}
                     </div>
                 )}
@@ -180,10 +203,7 @@ function DeliveryCard({ delivery, hasInProgress, canStartDelivery, onStartClick,
                             <span className="font-medium text-foreground">Elapsed</span>
                             <ElapsedTimer startTime={delivery.start_time} />
                         </div>
-                        <Button
-                            onClick={() => onEndClick(delivery.id)}
-                            variant="destructive"
-                        >
+                        <Button onClick={() => onEndClick(delivery.id)} variant="destructive">
                             End Delivery
                         </Button>
                     </>
@@ -195,7 +215,7 @@ function DeliveryCard({ delivery, hasInProgress, canStartDelivery, onStartClick,
 
                 <Link
                     href={route('driver.deliveries.show', delivery.id)}
-                    className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium ring-offset-background hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium ring-offset-background hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
                     View details
                 </Link>
@@ -204,7 +224,15 @@ function DeliveryCard({ delivery, hasInProgress, canStartDelivery, onStartClick,
     );
 }
 
-const CHECKLIST_KEYS = ['vehicle_clean', 'hvac_running', 'logger_active', 'separation_verified', 'containers_sealed', 'logs_completed', 'chain_of_custody_signed'] as const;
+const CHECKLIST_KEYS = [
+    'vehicle_clean',
+    'hvac_running',
+    'logger_active',
+    'separation_verified',
+    'containers_sealed',
+    'logs_completed',
+    'chain_of_custody_signed',
+] as const;
 
 export default function MyDeliveries({ deliveries }: { deliveries: any[] }) {
     const [startConfirm, setStartConfirm] = useState<number | null>(null);
@@ -213,18 +241,22 @@ export default function MyDeliveries({ deliveries }: { deliveries: any[] }) {
     const [isStarting, setIsStarting] = useState(false);
     const [isEnding, setIsEnding] = useState(false);
 
-    const hasInProgress = deliveries.some(d => d.status === 'in_transit' || d.status === 'in_progress');
-    const actionRequired = deliveries.filter(d => ['assigned', 'picked_up', 'in_transit', 'in_progress'].includes(d.status));
+    const hasInProgress = deliveries.some((d) => d.status === 'in_transit' || d.status === 'in_progress');
+    const actionRequired = deliveries.filter((d) => ['assigned', 'picked_up', 'in_transit', 'in_progress'].includes(d.status));
     const groupedByDate = groupDeliveriesByDate(deliveries);
 
-    const isChecklistComplete = useCallback((d: { checklist?: Record<string, unknown> | null }) =>
-        !!d.checklist && CHECKLIST_KEYS.every(k => !!d.checklist![k]), []);
+    const isChecklistComplete = useCallback(
+        (d: { checklist?: Record<string, unknown> | null }) => !!d.checklist && CHECKLIST_KEYS.every((k) => !!d.checklist![k]),
+        [],
+    );
 
-    const canStartDelivery = useCallback((d: { id: number; checklist?: Record<string, unknown> | null }) =>
-        isChecklistComplete(d) || !!clientChecklistComplete[d.id], [clientChecklistComplete, isChecklistComplete]);
+    const canStartDelivery = useCallback(
+        (d: { id: number; checklist?: Record<string, unknown> | null }) => isChecklistComplete(d) || !!clientChecklistComplete[d.id],
+        [clientChecklistComplete, isChecklistComplete],
+    );
 
     const handleChecklistCompleteChange = useCallback((deliveryId: number, complete: boolean) => {
-        setClientChecklistComplete(prev => {
+        setClientChecklistComplete((prev) => {
             if (prev[deliveryId] === complete) return prev;
             return { ...prev, [deliveryId]: complete };
         });
@@ -234,7 +266,7 @@ export default function MyDeliveries({ deliveries }: { deliveries: any[] }) {
         <DriverLayout breadcrumbs={[{ title: 'My Deliveries', href: '/driver/deliveries' }]}>
             <Head title="My Deliveries" />
 
-            <div className="flex flex-1 flex-col gap-8 p-4 lg:p-6 max-w-6xl mx-auto w-full">
+            <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 p-4 lg:p-6">
                 {/* Page header */}
                 <div className="flex flex-col gap-1">
                     <h1 className="text-2xl font-bold tracking-tight text-foreground">My Deliveries</h1>
@@ -265,7 +297,9 @@ export default function MyDeliveries({ deliveries }: { deliveries: any[] }) {
                             <Package className="h-10 w-10 text-gray-500 dark:text-gray-400" />
                         </div>
                         <h2 className="mt-5 text-lg font-semibold text-foreground">No deliveries assigned</h2>
-                        <p className="mt-1 max-w-sm text-center text-sm text-muted-foreground">When an officer assigns you a delivery, it will appear here. You can also check your notifications for new assignments.</p>
+                        <p className="mt-1 max-w-sm text-center text-sm text-muted-foreground">
+                            When an officer assigns you a delivery, it will appear here. You can also check your notifications for new assignments.
+                        </p>
                     </div>
                 ) : (
                     <>
@@ -276,14 +310,18 @@ export default function MyDeliveries({ deliveries }: { deliveries: any[] }) {
                             onConfirm={() => {
                                 const id = startConfirm;
                                 if (id != null) {
-                                    router.post(route('driver.deliveries.start', { delivery: id }), {}, { 
-                                        preserveScroll: true,
-                                        onStart: () => setIsStarting(true),
-                                        onFinish: () => {
-                                            setIsStarting(false);
-                                            setStartConfirm(null);
-                                        }
-                                    });
+                                    router.post(
+                                        route('driver.deliveries.start', { delivery: id }),
+                                        {},
+                                        {
+                                            preserveScroll: true,
+                                            onStart: () => setIsStarting(true),
+                                            onFinish: () => {
+                                                setIsStarting(false);
+                                                setStartConfirm(null);
+                                            },
+                                        },
+                                    );
                                 }
                             }}
                             title="Start this delivery?"
@@ -297,14 +335,18 @@ export default function MyDeliveries({ deliveries }: { deliveries: any[] }) {
                             onConfirm={() => {
                                 const id = endConfirm;
                                 if (id != null) {
-                                    router.post(route('driver.deliveries.end', { delivery: id }), {}, { 
-                                        preserveScroll: true,
-                                        onStart: () => setIsEnding(true),
-                                        onFinish: () => {
-                                            setIsEnding(false);
-                                            setEndConfirm(null);
-                                        }
-                                    });
+                                    router.post(
+                                        route('driver.deliveries.end', { delivery: id }),
+                                        {},
+                                        {
+                                            preserveScroll: true,
+                                            onStart: () => setIsEnding(true),
+                                            onFinish: () => {
+                                                setIsEnding(false);
+                                                setEndConfirm(null);
+                                            },
+                                        },
+                                    );
                                 }
                             }}
                             title="End this delivery?"
@@ -317,7 +359,7 @@ export default function MyDeliveries({ deliveries }: { deliveries: any[] }) {
                             <section className="space-y-8">
                                 {groupedByDate.map(({ dateLabel, dateKey, deliveries: groupItems }) => (
                                     <div key={dateKey}>
-                                        <h2 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+                                        <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
                                             <Calendar className="h-4 w-4" />
                                             {dateLabel}
                                         </h2>
@@ -341,7 +383,10 @@ export default function MyDeliveries({ deliveries }: { deliveries: any[] }) {
 
                         <section>
                             <Button variant="ghost" size="sm" asChild>
-                                <Link href={route('driver.deliveries.completed')} className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground">
+                                <Link
+                                    href={route('driver.deliveries.completed')}
+                                    className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                                >
                                     <CheckCircle2 className="h-4 w-4" />
                                     View completed deliveries
                                 </Link>

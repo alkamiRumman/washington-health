@@ -32,6 +32,31 @@ export interface SharedData {
     [key: string]: unknown;
 }
 
+export interface ChartItem {
+    date: string;
+    count: number;
+}
+
+export interface DashboardProps {
+    stats: {
+        total_today: number;
+        in_progress: number;
+        completed_today: number;
+        pending: number;
+    };
+    recent_deliveries: Delivery[];
+    chart_data: ChartItem[];
+}
+
+export interface ReportProps {
+    totalDeliveries: number;
+    completedDeliveries: number;
+    pendingDeliveries: number;
+    inProgressDeliveries: number;
+    deliveriesByDriver: { id: number; name: string; deliveries_as_driver_count: number }[];
+    recentCompleted: { id: number; pickup_location: string; delivery_location: string; driver?: { name: string }; end_time: string }[];
+}
+
 export interface User {
     id: number;
     name: string;
@@ -43,7 +68,6 @@ export interface User {
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
 }
-
 
 export interface Vehicle {
     id: number;

@@ -129,7 +129,7 @@ class DashboardController extends Controller
             $query->whereDate('scheduled_time', '<=', $request->date_to);
         }
 
-        $deliveries = $query->latest()->paginate(20)->withQueryString();
+        $deliveries = $query->latest()->paginate(10)->withQueryString();
 
         $drivers  = User::where('role', 'driver')->get(['id', 'name']);
         $vehicles = Vehicle::orderBy('vehicle_number')->get(['id', 'vehicle_number']);
@@ -281,7 +281,42 @@ class DashboardController extends Controller
             $query->where('vehicle_id', $request->vehicle_id);
         }
 
+        if ($request->query('export') === 'csv') {
+            $deliveries = $query->latest('scheduled_time')->get();
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="chain-of-custody-log-' . now()->format('Y-m-d') . '.csv"',
+            ];
+
+            $callback = function () use ($deliveries) {
+                $handle = fopen('php://output', 'w');
+                fputcsv($handle, [
+                    'Date', 'Delivery ID', 'Driver', 'Vehicle',
+                    'Pickup Dept', 'Delivery Dept', 'Carrier Condition', 'Seal Status', 'Officer Name', 'Driver Signature'
+                ]);
+                foreach ($deliveries as $d) {
+                    $coc = $d->chainOfCustody;
+                    fputcsv($handle, [
+                        $d->scheduled_time?->format('Y-m-d'),
+                        $d->id,
+                        $d->driver->name ?? 'Unassigned',
+                        $d->vehicle->vehicle_number ?? 'N/A',
+                        $coc->pickup_department ?? '',
+                        $coc->delivery_department ?? '',
+                        $coc->carrier_condition ?? '',
+                        ($coc->seal_intact ?? false) ? 'Intact' : 'Broken',
+                        $coc->signature_name ?? '',
+                        $coc->driver_signature ? 'Signed' : 'Not Signed',
+                    ]);
+                }
+                fclose($handle);
+            };
+
+            return response()->stream($callback, 200, $headers);
+        }
+
         $deliveries = $query->latest('scheduled_time')->get();
+
         $drivers = User::where('role', 'driver')->get(['id', 'name']);
         $vehicles = Vehicle::orderBy('vehicle_number')->get(['id', 'vehicle_number']);
 
@@ -311,7 +346,42 @@ class DashboardController extends Controller
             $query->where('vehicle_id', $request->vehicle_id);
         }
 
+        if ($request->query('export') === 'csv') {
+            $deliveries = $query->latest('scheduled_time')->get();
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="vehicle-inspection-log-' . now()->format('Y-m-d') . '.csv"',
+            ];
+
+            $callback = function () use ($deliveries) {
+                $handle = fopen('php://output', 'w');
+                fputcsv($handle, [
+                    'Date', 'Vehicle ID', 'Driver',
+                    'Vehicle Clean', 'HVAC Running', 'Separation Verified',
+                    'Logger Active', 'Logs Completed', 'Containers Sealed'
+                ]);
+                foreach ($deliveries as $d) {
+                    $cl = $d->checklist;
+                    fputcsv($handle, [
+                        $d->scheduled_time?->format('Y-m-d'),
+                        $d->vehicle->vehicle_number ?? 'N/A',
+                        $d->driver->name ?? 'Unassigned',
+                        ($cl->vehicle_clean ?? false) ? 'YES' : 'NO',
+                        ($cl->hvac_running ?? false) ? 'YES' : 'NO',
+                        ($cl->separation_verified ?? false) ? 'YES' : 'NO',
+                        ($cl->logger_active ?? false) ? 'YES' : 'NO',
+                        ($cl->logs_completed ?? false) ? 'YES' : 'NO',
+                        ($cl->containers_sealed ?? false) ? 'YES' : 'NO',
+                    ]);
+                }
+                fclose($handle);
+            };
+
+            return response()->stream($callback, 200, $headers);
+        }
+
         $deliveries = $query->latest('scheduled_time')->get();
+
         $drivers = User::where('role', 'driver')->get(['id', 'name']);
         $vehicles = Vehicle::orderBy('vehicle_number')->get(['id', 'vehicle_number']);
 

@@ -1,52 +1,16 @@
-import AdminLayout from '@/layouts/AdminLayout';
-import { Head, router, useForm } from '@inertiajs/react';
-import { useState } from 'react';
-import { FileText, Trash2 } from 'lucide-react';
-import ChainOfCustodyForm from '@/components/ChainOfCustodyForm';
 import { ActionConfirmDialog } from '@/components/ActionConfirmDialog';
+import ChainOfCustodyForm from '@/components/ChainOfCustodyForm';
 import DeliveryTimeline from '@/components/DeliveryTimeline';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import AdminLayout from '@/layouts/AdminLayout';
+import { Delivery, User, Vehicle } from '@/types';
+import { Head, router, useForm } from '@inertiajs/react';
+import { ChevronLeft, FileText, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
-interface User {
-    id: number;
-    name: string;
-}
-
-interface Vehicle {
-    id: number;
-    vehicle_number: string;
-    description: string;
-}
-
-interface Delivery {
-    id: number;
-    status: string;
-    created_at: string;
-    scheduled_time: string;
-    pickup_time?: string;
-    start_time?: string;
-    end_time?: string;
-    duration_minutes?: number;
-    pickup_location: string;
-    delivery_location: string;
-    notes?: string;
-    driver_id?: number;
-    vehicle_id?: number;
-    driver?: User;
-    vehicle?: Vehicle;
-    officer?: User;
-    chain_of_custody?: any;
-}
-
-export default function Show({ delivery, drivers = [], vehicles = [] }: { delivery: Delivery, drivers?: User[], vehicles?: Vehicle[] }) {
+export default function Show({ delivery, drivers = [], vehicles = [] }: { delivery: Delivery; drivers?: User[]; vehicles?: Vehicle[] }) {
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const { data, setData, post, processing, errors } = useForm({
         driver_id: delivery.driver_id || '',
@@ -62,30 +26,37 @@ export default function Show({ delivery, drivers = [], vehicles = [] }: { delive
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-            case 'assigned': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-            case 'in_progress': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
-            case 'completed': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-            default: return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+            case 'pending':
+                return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+            case 'assigned':
+                return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+            case 'in_progress':
+                return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+            case 'completed':
+                return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+            default:
+                return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
         }
     };
 
     return (
-        <AdminLayout breadcrumbs={[
-            { title: 'Deliveries', href: '/admin/deliveries' },
-            { title: `Delivery #${delivery.id}`, href: `/admin/deliveries/${delivery.id}` }
-        ]}>
+        <AdminLayout
+            breadcrumbs={[
+                { title: 'Deliveries', href: '/admin/deliveries' },
+                { title: `Delivery #${delivery.id}`, href: `/admin/deliveries/${delivery.id}` },
+            ]}
+        >
             <Head title={`Delivery #${delivery.id}`} />
-            <div className="flex flex-1 flex-col gap-6 p-4 lg:p-6">
-                
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Delivery #{delivery.id}</h1>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            Requested by <span className="font-semibold text-gray-700 dark:text-gray-300">{delivery.officer?.name || 'System'}</span> on {new Date(delivery.created_at).toLocaleString()}
+                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                            Requested by <span className="font-semibold text-gray-700 dark:text-gray-300">{delivery.officer?.name || 'System'}</span>{' '}
+                            on {new Date(delivery.created_at).toLocaleString()}
                         </p>
                     </div>
-                    <div>
+                    <div className="flex items-center gap-4">
                         <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ${getStatusColor(delivery.status)}`}>
                             {delivery.status.replace('_', ' ').toUpperCase()}
                         </span>
@@ -94,28 +65,28 @@ export default function Show({ delivery, drivers = [], vehicles = [] }: { delive
                                 href={route('compliance.export', delivery.id)}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="ml-3 inline-flex items-center gap-2 rounded-md bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-700 dark:hover:bg-gray-700"
+                                className="ml-3 inline-flex items-center gap-2 rounded-md bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-gray-300 ring-inset hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-700 dark:hover:bg-gray-700"
                             >
                                 <FileText className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                                 Export PDF
                             </a>
                         )}
-                        <button
-                            type="button"
-                            onClick={() => setDeleteConfirmOpen(true)}
-                            className="ml-3 inline-flex items-center gap-2 rounded-md bg-white px-3 py-1.5 text-sm font-semibold text-red-700 shadow-sm ring-1 ring-inset ring-red-300 hover:bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:ring-red-600 dark:hover:bg-red-900/20"
-                        >
+                        <Button onClick={() => setDeleteConfirmOpen(true)} variant="destructive">
                             <Trash2 className="h-4 w-4" />
                             Delete delivery
-                        </button>
+                        </Button>
+                        <Button onClick={() => router.get(route('admin.deliveries'))}>
+                            <ChevronLeft className="h-4 w-4" />
+                            Back
+                        </Button>
                     </div>
                 </div>
 
                 {delivery.status !== 'completed' && (
-                    <div className="rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Assign Driver & Vehicle</h2>
+                    <div className="rounded-lg border p-6 shadow-sm dark:border-gray-700">
+                        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Assign Driver & Vehicle</h2>
                         {(errors.driver_id || errors.vehicle_id) && (
-                            <div className="mb-4 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 text-sm text-red-800 dark:text-red-200">
+                            <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200">
                                 {errors.driver_id && <p>{errors.driver_id}</p>}
                                 {errors.vehicle_id && <p>{errors.vehicle_id}</p>}
                             </div>
@@ -123,16 +94,15 @@ export default function Show({ delivery, drivers = [], vehicles = [] }: { delive
                         <form onSubmit={submitAssign} className="flex flex-col gap-4 sm:flex-row sm:items-end">
                             <div className="flex-1 space-y-1">
                                 <Label htmlFor="driver_id">Driver</Label>
-                                <Select
-                                    value={data.driver_id ? String(data.driver_id) : ''}
-                                    onValueChange={v => setData('driver_id', v)}
-                                >
+                                <Select value={data.driver_id ? String(data.driver_id) : ''} onValueChange={(v) => setData('driver_id', v)}>
                                     <SelectTrigger id="driver_id">
                                         <SelectValue placeholder="Select a driver..." />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {drivers.map(d => (
-                                            <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
+                                        {drivers.map((d) => (
+                                            <SelectItem key={d.id} value={String(d.id)}>
+                                                {d.name}
+                                            </SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
@@ -140,16 +110,15 @@ export default function Show({ delivery, drivers = [], vehicles = [] }: { delive
                             </div>
                             <div className="flex-1 space-y-1">
                                 <Label htmlFor="vehicle_id">Vehicle</Label>
-                                <Select
-                                    value={data.vehicle_id ? String(data.vehicle_id) : ''}
-                                    onValueChange={v => setData('vehicle_id', v)}
-                                >
+                                <Select value={data.vehicle_id ? String(data.vehicle_id) : ''} onValueChange={(v) => setData('vehicle_id', v)}>
                                     <SelectTrigger id="vehicle_id">
                                         <SelectValue placeholder="Select a vehicle..." />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {vehicles.map(v => (
-                                            <SelectItem key={v.id} value={String(v.id)}>{v.vehicle_number} – {v.description}</SelectItem>
+                                        {vehicles.map((v) => (
+                                            <SelectItem key={v.id} value={String(v.id)}>
+                                                {v.vehicle_number} – {v.description}
+                                            </SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
@@ -164,66 +133,70 @@ export default function Show({ delivery, drivers = [], vehicles = [] }: { delive
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     {/* Delivery Details Card */}
-                    <div className="rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center justify-between">
-                            Details
-                        </h2>
-                        
+                    <div className="rounded-lg border bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <h2 className="mb-4 flex items-center justify-between text-lg font-semibold text-gray-900 dark:text-gray-100">Details</h2>
+
                         <dl className="space-y-4">
                             <div>
                                 <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Pickup Location</dt>
-                                <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100 font-medium">{delivery.pickup_location}</dd>
+                                <dd className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">{delivery.pickup_location}</dd>
                             </div>
                             <div>
                                 <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Delivery Location</dt>
-                                <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100 font-medium">{delivery.delivery_location}</dd>
+                                <dd className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">{delivery.delivery_location}</dd>
                             </div>
                             <div className="grid grid-cols-2 gap-4 pt-2">
                                 <div>
-                                    <dt className="text-xs uppercase text-gray-500 dark:text-gray-400">Scheduled Time</dt>
-                                    <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">{new Date(delivery.scheduled_time).toLocaleString()}</dd>
+                                    <dt className="text-xs text-gray-500 uppercase dark:text-gray-400">Scheduled Time</dt>
+                                    <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                                        {new Date(delivery.scheduled_time).toLocaleString()}
+                                    </dd>
                                 </div>
                                 <div>
-                                    <dt className="text-xs uppercase text-gray-500 dark:text-gray-400">Driver</dt>
+                                    <dt className="text-xs text-gray-500 uppercase dark:text-gray-400">Driver</dt>
                                     <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">{delivery.driver?.name || 'Unassigned'}</dd>
                                 </div>
                                 <div>
-                                    <dt className="text-xs uppercase text-gray-500 dark:text-gray-400">Vehicle</dt>
-                                    <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">{delivery.vehicle?.vehicle_number || 'Unassigned'}</dd>
+                                    <dt className="text-xs text-gray-500 uppercase dark:text-gray-400">Vehicle</dt>
+                                    <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                                        {delivery.vehicle?.vehicle_number || 'Unassigned'}
+                                    </dd>
                                 </div>
                             </div>
                             {delivery.notes && (
-                                <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
+                                <div className="border-t border-gray-100 pt-2 dark:border-gray-700">
                                     <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Notes</dt>
-                                    <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100 italic">{delivery.notes}</dd>
+                                    <dd className="mt-1 text-sm text-gray-900 italic dark:text-gray-100">{delivery.notes}</dd>
                                 </div>
                             )}
                         </dl>
                     </div>
 
                     {/* Timeline Card */}
-                    <div className="rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-5">Delivery Timeline</h2>
+                    <div className="rounded-lg border bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <h2 className="mb-5 text-lg font-semibold text-gray-900 dark:text-gray-100">Delivery Timeline</h2>
                         <DeliveryTimeline delivery={delivery} />
                         {delivery.duration_minutes && (
-                            <div className="mt-2 border-t border-gray-100 dark:border-gray-700 pt-4">
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Total Duration: <span className="font-medium text-gray-900 dark:text-gray-100">{delivery.duration_minutes} minutes</span></p>
+                            <div className="mt-2 border-t border-gray-100 pt-4 dark:border-gray-700">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    Total Duration:{' '}
+                                    <span className="font-medium text-gray-900 dark:text-gray-100">{delivery.duration_minutes} minutes</span>
+                                </p>
                             </div>
                         )}
                     </div>
                 </div>
 
                 {delivery.status === 'completed' && (
-                    <div className="mt-4 rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center justify-between">
+                    <div className="mt-4 rounded-lg border bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <h2 className="mb-4 flex items-center justify-between text-lg font-semibold text-gray-900 dark:text-gray-100">
                             Chain of Custody
                         </h2>
                         <ChainOfCustodyForm delivery={delivery} coc={delivery.chain_of_custody} readOnly={true} />
                     </div>
                 )}
-
             </div>
 
             <ActionConfirmDialog
