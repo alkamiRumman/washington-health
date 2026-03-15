@@ -37,15 +37,21 @@ interface QualityReviewFormProps {
     submitRoute: string;
     initialDeliveryId?: number | null;
     initialVehicleId?: number | null;
+    /** Vehicle number(s) to show in Vehicle ID(s) field (e.g. from delivery.vehicle.vehicle_number) */
+    initialVehicleIds?: string;
+    /** Supervisor name from session (e.g. auth.user.name) */
+    initialSupervisorName?: string;
     onSuccess?: () => void;
 }
 
-export function QualityReviewForm({ submitRoute, initialDeliveryId, initialVehicleId, onSuccess }: QualityReviewFormProps) {
+export function QualityReviewForm({ submitRoute, initialDeliveryId, initialVehicleId, initialVehicleIds, initialSupervisorName, onSuccess }: QualityReviewFormProps) {
     const { data, setData, post, processing, errors } = useForm<QualityReviewFormData>({
         ...defaultData,
         month_year: new Date().toISOString().slice(0, 7),
         delivery_id: initialDeliveryId ? String(initialDeliveryId) : '',
         vehicle_id: initialVehicleId ? String(initialVehicleId) : '',
+        vehicle_ids: initialVehicleIds ?? '',
+        supervisor_name: initialSupervisorName ?? '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -58,11 +64,11 @@ export function QualityReviewForm({ submitRoute, initialDeliveryId, initialVehic
 
     return (
         <Card className="shadow-sm">
-            <CardHeader className="border-b py-3">
+                <CardHeader className="border-b py-2">
                 <CardTitle className="text-base">Monthly Supervisor Review</CardTitle>
             </CardHeader>
-            <CardContent className="pt-4">
-                <form onSubmit={handleSubmit} className="space-y-4 text-sm">
+                <CardContent className="pt-3">
+                <form onSubmit={handleSubmit} className="space-y-3 text-sm">
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-2">
                             <Label htmlFor="month_year">Month / Year</Label>

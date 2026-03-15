@@ -128,7 +128,7 @@ export default function DeliveryTimeline({ delivery }: DeliveryTimelineProps) {
                         </div>
 
                         {/* Content */}
-                        <div className={`pb-6 ${isLast ? '' : ''}`}>
+                        <div className={`pb-2 ${isLast ? '' : ''}`}>
                             <div className="flex flex-wrap items-baseline gap-x-2">
                                 <p
                                     className={`text-sm font-semibold ${step.done ? 'text-gray-900 dark:text-gray-100' : step.active ? 'text-amber-700 dark:text-amber-300' : 'text-gray-400 dark:text-gray-500'}`}

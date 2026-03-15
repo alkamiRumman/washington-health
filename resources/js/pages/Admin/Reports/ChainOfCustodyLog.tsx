@@ -60,7 +60,7 @@ export default function ChainOfCustodyLog({ deliveries, drivers, vehicles, filte
             ]}
         >
             <Head title="Instrument Chain-of-Custody Log" />
-            <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
+            <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-x-hidden p-4 lg:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Instrument Chain-of-Custody Log</h1>
@@ -146,7 +146,8 @@ export default function ChainOfCustodyLog({ deliveries, drivers, vehicles, filte
                     </CardContent>
                 </Card>
 
-                <div className="overflow-hidden rounded-xl border bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div className="min-w-0 overflow-hidden rounded-xl border bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    {/* Tablet/Desktop: table */}
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
@@ -168,7 +169,7 @@ export default function ChainOfCustodyLog({ deliveries, drivers, vehicles, filte
                             <TableBody>
                                 {deliveries.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={12} className="h-32 text-center text-muted-foreground">
+                                        <TableCell colSpan={12} className="h-24 px-3 py-2 text-center text-muted-foreground">
                                             No chain-of-custody records found for the selected filters.
                                         </TableCell>
                                     </TableRow>
@@ -177,14 +178,14 @@ export default function ChainOfCustodyLog({ deliveries, drivers, vehicles, filte
                                         const coc = d.chain_of_custody;
                                         return (
                                             <TableRow key={d.id} className="group transition-colors hover:cursor-pointer hover:bg-muted/50">
-                                                <TableCell className="whitespace-nowrap">
+                                                <TableCell className="whitespace-nowrap px-3 py-2">
                                                     {new Date(d.scheduled_time).toLocaleDateString('en-US', {
                                                         month: 'short',
                                                         day: 'numeric',
                                                         year: 'numeric',
                                                     })}
                                                 </TableCell>
-                                                <TableCell className="font-mono text-xs whitespace-nowrap text-muted-foreground">
+                                                <TableCell className="font-mono text-xs whitespace-nowrap px-3 py-2 text-muted-foreground">
                                                     {coc?.pickup_time
                                                         ? new Date(coc.pickup_time).toLocaleTimeString('en-US', {
                                                               hour: 'numeric',
@@ -192,14 +193,14 @@ export default function ChainOfCustodyLog({ deliveries, drivers, vehicles, filte
                                                           })
                                                         : '—'}
                                                 </TableCell>
-                                                <TableCell className="max-w-[140px] truncate" title={coc?.pickup_department || ''}>
+                                                <TableCell className="max-w-[140px] truncate px-3 py-2" title={coc?.pickup_department || ''}>
                                                     {coc?.pickup_department || <span className="text-muted-foreground italic">—</span>}
                                                 </TableCell>
-                                                <TableCell className="max-w-[140px] truncate" title={coc?.delivery_department || ''}>
+                                                <TableCell className="max-w-[140px] truncate px-3 py-2" title={coc?.delivery_department || ''}>
                                                     {coc?.delivery_department || <span className="text-muted-foreground italic">—</span>}
                                                 </TableCell>
-                                                <TableCell className="font-mono text-xs text-muted-foreground">{coc?.container_ids || '—'}</TableCell>
-                                                <TableCell className="text-center">
+                                                <TableCell className="font-mono text-xs px-3 py-2 text-muted-foreground">{coc?.container_ids || '—'}</TableCell>
+                                                <TableCell className="px-3 py-2 text-center">
                                                     <Badge
                                                         variant="outline"
                                                         className={`text-[10px] font-bold uppercase ${coc?.condition === 'clean' ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : coc?.condition ? 'border-red-200 bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300' : 'bg-gray-100 text-gray-500'}`}
@@ -207,20 +208,20 @@ export default function ChainOfCustodyLog({ deliveries, drivers, vehicles, filte
                                                         {coc?.condition ? coc.condition : '—'}
                                                     </Badge>
                                                 </TableCell>
-                                                <TableCell className="text-center">
+                                                <TableCell className="px-3 py-2 text-center">
                                                     <BoolCell value={!!coc?.driver_signature} />
                                                 </TableCell>
-                                                <TableCell className="text-xs text-muted-foreground capitalize">{coc?.condition || '—'}</TableCell>
-                                                <TableCell className="font-medium">
+                                                <TableCell className="text-xs capitalize text-muted-foreground px-3 py-2">{coc?.condition || '—'}</TableCell>
+                                                <TableCell className="px-3 py-2 font-medium">
                                                     {d.driver?.name || <span className="text-xs text-muted-foreground italic">Unassigned</span>}
                                                 </TableCell>
-                                                <TableCell className="text-center">
+                                                <TableCell className="px-3 py-2 text-center">
                                                     <BoolCell value={!!coc?.driver_signature} />
                                                 </TableCell>
-                                                <TableCell className="text-center">
+                                                <TableCell className="px-3 py-2 text-center">
                                                     <BoolCell value={!!coc?.receiver_signature} />
                                                 </TableCell>
-                                                <TableCell className="text-right">
+                                                <TableCell className="px-3 py-2 text-right">
                                                     <Button variant="ghost" size="icon" asChild className="h-8 w-8 text-blue-600">
                                                         <Link href={route('admin.deliveries.show', d.id)} title="View Details">
                                                             <Eye className="h-4 w-4" />
@@ -236,7 +237,7 @@ export default function ChainOfCustodyLog({ deliveries, drivers, vehicles, filte
                     </div>
 
                     {deliveries.length > 0 && (
-                        <div className="border-t bg-muted/30 px-6 py-3">
+                        <div className="border-t bg-muted/30 px-4 py-2">
                             <p className="text-xs text-muted-foreground">
                                 Showing <span className="font-semibold text-foreground">{deliveries.length}</span> record
                                 {deliveries.length !== 1 ? 's' : ''}

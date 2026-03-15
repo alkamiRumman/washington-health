@@ -55,7 +55,7 @@ export default function Create({ drivers = [], vehicles = [] }: { drivers?: User
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="pt-6">
-                        <form onSubmit={submit} className="space-y-6">
+                        <form onSubmit={submit} className="space-y-4">
                             {(errors.driver_id || errors.vehicle_id) && (
                                 <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200">
                                     {errors.driver_id && <p>• {errors.driver_id}</p>}
@@ -63,7 +63,7 @@ export default function Create({ drivers = [], vehicles = [] }: { drivers?: User
                                 </div>
                             )}
 
-                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="driver_id" className="text-xs font-bold tracking-wider text-gray-500 uppercase">
                                         Driver Assignment
@@ -104,7 +104,7 @@ export default function Create({ drivers = [], vehicles = [] }: { drivers?: User
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="pickup_location" className="text-xs font-bold tracking-wider text-gray-500 uppercase">
                                         Pickup Point <span className="text-red-500">*</span>

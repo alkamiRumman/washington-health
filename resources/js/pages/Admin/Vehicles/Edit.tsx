@@ -32,7 +32,7 @@ export default function Edit({ vehicle }: { vehicle: Vehicle }) {
             ]}
         >
             <Head title={`Edit Vehicle - ${vehicle.vehicle_number}`} />
-            <div className="flex flex-1 flex-col gap-6 p-4 lg:p-6">
+            <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
                 <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
                     <div className="flex items-center gap-4">
                         <div>
@@ -56,13 +56,13 @@ export default function Edit({ vehicle }: { vehicle: Vehicle }) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                     <Card className="shadow-sm lg:col-span-2">
                         <CardHeader>
                             <CardTitle>Vehicle Information</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <form onSubmit={submit} className="space-y-6">
+                            <form onSubmit={submit} className="space-y-4">
                                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                     <div className="space-y-2">
                                         <Label htmlFor="vehicle_number">
@@ -118,7 +118,7 @@ export default function Edit({ vehicle }: { vehicle: Vehicle }) {
                         </CardContent>
                     </Card>
 
-                    <div className="space-y-6">
+                    <div className="space-y-4">
                         <Card className="shadow-sm">
                             <CardHeader>
                                 <CardTitle className="text-sm font-medium tracking-wider text-muted-foreground uppercase">Registry Info</CardTitle>

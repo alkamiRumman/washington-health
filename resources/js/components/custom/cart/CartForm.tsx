@@ -73,7 +73,7 @@ const CartForm: React.FC<CartFormProps> = ({ onSuccess }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
             <div>
                 <label htmlFor="cartTypeId" className="mb-1 block text-sm font-medium text-gray-700">
                     Cart Type*

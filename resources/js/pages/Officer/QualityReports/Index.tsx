@@ -1,4 +1,3 @@
-import { ActionConfirmDialog } from '@/components/ActionConfirmDialog';
 import { Pagination } from '@/components/custom/Pagination';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -6,41 +5,52 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AdminLayout from '@/layouts/AdminLayout';
-import { PaginatedData, QualityReport } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
-import { ClipboardCheck, Eye, Search, Trash2 } from 'lucide-react';
+import OfficerLayout from '@/layouts/OfficerLayout';
+import { PaginatedData, QualityReport, User } from '@/types';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { ClipboardCheck, Eye, Search } from 'lucide-react';
 import { useState } from 'react';
 
 interface Props {
     reports: PaginatedData<QualityReport>;
-    filters: { month_year: string; supervisor: string };
+    filters: { month_year: string };
 }
 
 export default function Index({ reports, filters }: Props) {
+    const { auth } = usePage().props as unknown as { auth: { user: User } };
+    const isAdmin = auth.user.role === 'admin' || auth.user.role === 'super_admin';
+    const Layout = isAdmin ? AdminLayout : OfficerLayout;
+
     const [monthYear, setMonthYear] = useState(filters.month_year || '');
-    const [supervisor, setSupervisor] = useState(filters.supervisor || '');
     const [viewReport, setViewReport] = useState<QualityReport | null>(null);
-    const [deleteId, setDeleteId] = useState<number | null>(null);
+
+    const routeName = isAdmin ? 'admin.my-quality-reports' : 'officer.quality-reports.index';
 
     const applyFilters = (e: React.FormEvent) => {
         e.preventDefault();
-        router.get(route('admin.quality-reports.index'), { month_year: monthYear || undefined, supervisor: supervisor || undefined }, { preserveState: true });
+        router.get(route(routeName), { month_year: monthYear || undefined }, { preserveState: true });
     };
 
     const resetFilters = () => {
         setMonthYear('');
-        setSupervisor('');
-        router.get(route('admin.quality-reports.index'), {}, { preserveState: false });
+        router.get(route(routeName), {}, { preserveState: false });
     };
 
     return (
-        <AdminLayout breadcrumbs={[{ title: 'Quality Reports', href: '/admin/quality-reports' }]}>
+        <Layout 
+            breadcrumbs={isAdmin ? [
+                { title: 'Dashboard', href: '/admin/dashboard' },
+                { title: 'Quality Reports', href: '/admin/quality-reports' }
+            ] : [
+                { title: 'Dashboard', href: '/officer/dashboard' },
+                { title: 'Quality Reports', href: '/officer/quality-reports' }
+            ]}>
             <Head title="Quality Reports" />
             <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-x-hidden p-4 lg:p-6">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="text-xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Delivery Quality Review</h1>
-                        <p className="text-sm text-muted-foreground">Monthly supervisor reviews and quality reports.</p>
+                        <h1 className="text-xl font-bold tracking-tight text-gray-900 dark:text-gray-100">My Supervisor Reviews</h1>
+                        <p className="text-sm text-muted-foreground">Monthly supervisor reviews and quality reports created by you.</p>
                     </div>
                 </div>
 
@@ -52,16 +62,6 @@ export default function Index({ reports, filters }: Props) {
                                 type="month"
                                 value={monthYear}
                                 onChange={(e) => setMonthYear(e.target.value)}
-                                className="h-8 text-xs"
-                            />
-                        </div>
-                        <div className="w-40">
-                            <Label className="text-[10px] font-medium text-muted-foreground">Supervisor</Label>
-                            <Input
-                                type="text"
-                                value={supervisor}
-                                onChange={(e) => setSupervisor(e.target.value)}
-                                placeholder="Name"
                                 className="h-8 text-xs"
                             />
                         </div>
@@ -79,7 +79,7 @@ export default function Index({ reports, filters }: Props) {
                     {/* Mobile: compact cards */}
                     <div className="space-y-2 p-3 sm:hidden">
                         {reports.data.length === 0 ? (
-                            <p className="py-8 text-center text-sm text-muted-foreground">No quality reports found.</p>
+                            <p className="py-8 text-center text-sm text-muted-foreground">No targeted quality reports found.</p>
                         ) : (
                             reports.data.map((report) => (
                                 <div
@@ -95,7 +95,7 @@ export default function Index({ reports, filters }: Props) {
                                         {report.delivery_id && (
                                             <>
                                                 {' · '}
-                                                <Link href={route('admin.deliveries.show', report.delivery_id)} className="font-medium text-indigo-600 hover:underline">
+                                                <Link href={isAdmin ? route('admin.deliveries.show', report.delivery_id) : route('officer.deliveries.show', report.delivery_id)} className="font-medium text-indigo-600 hover:underline">
                                                     #{report.delivery_id}
                                                 </Link>
                                             </>
@@ -111,14 +111,6 @@ export default function Index({ reports, filters }: Props) {
                                             <Eye className="h-3.5 w-3.5" />
                                             View
                                         </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="h-8 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
-                                            onClick={() => setDeleteId(report.id)}
-                                        >
-                                            <Trash2 className="h-3.5 w-3.5" />
-                                        </Button>
                                     </div>
                                 </div>
                             ))
@@ -130,7 +122,6 @@ export default function Index({ reports, filters }: Props) {
                             <TableHeader>
                                 <TableRow className="bg-indigo-100 hover:bg-indigo-100 dark:bg-indigo-900/50 dark:hover:bg-indigo-900/50">
                                     <TableHead className="h-9 px-3 py-2 font-medium">Month / Year</TableHead>
-                                    <TableHead className="h-9 px-3 py-2 font-medium">Supervisor</TableHead>
                                     <TableHead className="h-9 px-3 py-2 font-medium">Vehicle</TableHead>
                                     <TableHead className="h-9 px-3 py-2 font-medium">Delivery ID</TableHead>
                                     <TableHead className="h-9 max-w-[140px] px-3 py-2 font-medium">Issues found</TableHead>
@@ -141,19 +132,18 @@ export default function Index({ reports, filters }: Props) {
                             <TableBody>
                                 {reports.data.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={7} className="h-14 px-3 py-2 text-center text-muted-foreground">
-                                            No quality reports found.
+                                        <TableCell colSpan={6} className="h-14 px-3 py-2 text-center text-muted-foreground">
+                                            No targeted quality reports found.
                                         </TableCell>
                                     </TableRow>
                                 ) : (
                                     reports.data.map((report) => (
                                         <TableRow key={report.id} className="hover:bg-muted/50">
                                             <TableCell className="px-3 py-2 font-medium">{report.month_year}</TableCell>
-                                            <TableCell className="max-w-[120px] truncate px-3 py-2">{report.supervisor_name || '—'}</TableCell>
                                             <TableCell className="px-3 py-2">{report.vehicle?.vehicle_number ?? report.vehicle_ids ?? '—'}</TableCell>
                                             <TableCell className="px-3 py-2">
                                                 {report.delivery_id ? (
-                                                    <Link href={route('admin.deliveries.show', report.delivery_id)} className="text-indigo-600 hover:underline">
+                                                    <Link href={isAdmin ? route('admin.deliveries.show', report.delivery_id) : route('officer.deliveries.show', report.delivery_id)} className="text-indigo-600 hover:underline">
                                                         #{report.delivery_id}
                                                     </Link>
                                                 ) : (
@@ -176,15 +166,6 @@ export default function Index({ reports, filters }: Props) {
                                                     >
                                                         <Eye className="h-4 w-4" />
                                                         <span className="sr-only">View</span>
-                                                    </Button>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-8 w-8 text-red-600 hover:text-red-700"
-                                                        onClick={() => setDeleteId(report.id)}
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                        <span className="sr-only">Delete</span>
                                                     </Button>
                                                 </div>
                                             </TableCell>
@@ -224,21 +205,6 @@ export default function Index({ reports, filters }: Props) {
                     )}
                 </DialogContent>
             </Dialog>
-
-            <ActionConfirmDialog
-                open={deleteId !== null}
-                onCancel={() => setDeleteId(null)}
-                onConfirm={() => {
-                    if (deleteId) {
-                        router.delete(route('admin.quality-reports.destroy', deleteId), { onSuccess: () => setDeleteId(null) });
-                    }
-                }}
-                title="Delete this report?"
-                description="This action cannot be undone."
-                confirmText="Delete"
-                cancelText="Cancel"
-                variant="destructive"
-            />
-        </AdminLayout>
+        </Layout>
     );
 }

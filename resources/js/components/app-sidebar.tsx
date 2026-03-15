@@ -2,7 +2,7 @@ import { NavMainEnhanced } from '@/components/nav-main-enhanced';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { Link, usePage } from '@inertiajs/react';
-import { FileText, LayoutGrid, Truck, Users } from 'lucide-react';
+import { ClipboardCheck, FileText, LayoutGrid, Truck, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const adminNavItems = [
@@ -31,6 +31,16 @@ const adminNavItems = [
         href: '/admin/reports',
         icon: FileText,
     },
+    {
+        title: 'Quality Reports',
+        href: '/admin/quality-reports',
+        icon: ClipboardCheck,
+    },
+    {
+        title: 'My Reviews',
+        href: '/admin/my-quality-reports',
+        icon: ClipboardCheck,
+    },
 ];
 
 const officerNavItems = [
@@ -38,6 +48,11 @@ const officerNavItems = [
         title: 'Dashboard',
         href: '/officer/dashboard',
         icon: LayoutGrid,
+    },
+    {
+        title: 'Quality Reports',
+        href: '/officer/quality-reports',
+        icon: ClipboardCheck,
     },
 ];
 

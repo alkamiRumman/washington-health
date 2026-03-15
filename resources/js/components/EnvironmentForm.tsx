@@ -320,7 +320,7 @@ export default function EnvironmentForm({ delivery, envLog, readOnly = false }: 
                 )}
 
                 {!readOnly && (
-                    <div className="flex items-center justify-between gap-4 pt-3">
+                    <div className="flex items-center justify-between gap-4">
                         <Button type="submit" disabled={processing} className="w-full sm:w-auto">
                             Save Log
                         </Button>

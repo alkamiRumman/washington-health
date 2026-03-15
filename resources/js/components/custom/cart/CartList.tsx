@@ -37,7 +37,7 @@ const CartList: React.FC<CartListProps> = ({ carts }) => {
 
     if (carts.length === 0) {
         return (
-            <div className="p-8 text-center">
+            <div className="p-6 text-center">
                 <p className="mb-4 text-gray-500">No carts found</p>
                 <Link to="/carts/new" className="bg-primary-600 hover:bg-primary-700 rounded-md px-4 py-2 text-white transition-colors">
                     Add Your First Cart
@@ -47,7 +47,7 @@ const CartList: React.FC<CartListProps> = ({ carts }) => {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <div className="flex flex-col gap-4 md:flex-row">
                 <div className="relative flex-1">
                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -91,13 +91,13 @@ const CartList: React.FC<CartListProps> = ({ carts }) => {
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">QR</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Cart Number</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Type</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Location</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Locks</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Last Checked</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Actions</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">QR</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Cart Number</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Type</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Location</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Locks</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Last Checked</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 bg-white">
@@ -138,10 +138,10 @@ const CartList: React.FC<CartListProps> = ({ carts }) => {
                                         </span>
                                     </div>
                                 </td>
-                                <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
+                                <td className="px-4 py-2 text-sm whitespace-nowrap text-gray-500">
                                     {format(parseISO(cart.lastChecked), 'MMM dd, yyyy')}
                                 </td>
-                                <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
+                                <td className="px-4 py-2 text-sm font-medium whitespace-nowrap">
                                     <Link to={`/carts/${cart.id}`} className="text-primary-600 hover:text-primary-900">
                                         View Details
                                     </Link>

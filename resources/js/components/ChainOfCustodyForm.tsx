@@ -195,49 +195,65 @@ export default function ChainOfCustodyForm({ delivery, coc, readOnly = false }: 
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div className="space-y-1.5">
-                        <Label>Pickup Time</Label>
-                        <DateTimePicker value={data.pickup_time} onChange={(e) => setData('pickup_time', e)} readOnly={effectiveReadOnly} />
-                    </div>
-                    <div className="space-y-1.5">
-                        <Label>Delivery Time</Label>
-                        <DateTimePicker value={data.delivery_time} onChange={(e) => setData('delivery_time', e)} readOnly={effectiveReadOnly} />
-                    </div>
-                </div>
 
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <SignaturePad
-                        label="Driver Signature"
-                        existingSignature={data.driver_signature}
-                        onSave={(val, signedAt) => {
-                            const newPickupTime = val ? getNowFormatted() : '';
-                            const nextState = {
-                                ...data,
-                                driver_signature: val,
-                                driver_signed_at: signedAt ?? '',
-                                pickup_time: newPickupTime,
-                            };
-                            setData(nextState);
-                            saveSignatureToServer(nextState, val ? null : 'driver');
-                        }}
-                        readOnly={effectiveReadOnly}
-                    />
-                    <SignaturePad
-                        label="Receiver Signature"
-                        existingSignature={data.receiver_signature}
-                        onSave={(val, signedAt) => {
-                            const newDeliveryTime = val ? getNowFormatted() : '';
-                            const nextState = {
-                                ...data,
-                                receiver_signature: val,
-                                receiver_signed_at: signedAt ?? '',
-                                delivery_time: newDeliveryTime,
-                            };
-                            setData(nextState);
-                            saveSignatureToServer(nextState, val ? null : 'receiver');
-                        }}
-                        readOnly={effectiveReadOnly}
-                    />
+                    {/* Driver */}
+                    <div className="space-y-4">
+                        <SignaturePad
+                            label="Driver Signature"
+                            existingSignature={data.driver_signature}
+                            onSave={(val, signedAt) => {
+                                const newPickupTime = val ? getNowFormatted() : '';
+                                const nextState = {
+                                    ...data,
+                                    driver_signature: val,
+                                    driver_signed_at: signedAt ?? '',
+                                    pickup_time: newPickupTime,
+                                };
+                                setData(nextState);
+                                saveSignatureToServer(nextState, val ? null : 'driver');
+                            }}
+                            readOnly={effectiveReadOnly}
+                        />
+
+                        <div className="space-y-1.5">
+                            <Label>Pickup Time</Label>
+                            <DateTimePicker
+                                value={data.pickup_time}
+                                onChange={(e) => setData('pickup_time', e)}
+                                readOnly={effectiveReadOnly}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Receiver */}
+                    <div className="space-y-4">
+                        <SignaturePad
+                            label="Receiver Signature"
+                            existingSignature={data.receiver_signature}
+                            onSave={(val, signedAt) => {
+                                const newDeliveryTime = val ? getNowFormatted() : '';
+                                const nextState = {
+                                    ...data,
+                                    receiver_signature: val,
+                                    receiver_signed_at: signedAt ?? '',
+                                    delivery_time: newDeliveryTime,
+                                };
+                                setData(nextState);
+                                saveSignatureToServer(nextState, val ? null : 'receiver');
+                            }}
+                            readOnly={effectiveReadOnly}
+                        />
+
+                        <div className="space-y-1.5">
+                            <Label>Delivery Time</Label>
+                            <DateTimePicker
+                                value={data.delivery_time}
+                                onChange={(e) => setData('delivery_time', e)}
+                                readOnly={effectiveReadOnly}
+                            />
+                        </div>
+                    </div>
+
                 </div>
 
                 <div className="space-y-1.5">

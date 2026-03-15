@@ -1,13 +1,11 @@
-import ChainOfCustodyForm from '@/components/ChainOfCustodyForm';
-import ChecklistForm from '@/components/ChecklistForm';
 import DeliveryTimeline from '@/components/DeliveryTimeline';
 import ElapsedTimer from '@/components/ElapsedTimer';
-import EnvironmentForm from '@/components/EnvironmentForm';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import DriverLayout from '@/layouts/DriverLayout';
 import { Delivery } from '@/types';
+import ChainOfCustodyForm from '@/components/ChainOfCustodyForm';
 import { Head, Link } from '@inertiajs/react';
 
 import { Calendar, ChevronLeft, MapPin, Truck } from 'lucide-react';
@@ -55,7 +53,7 @@ export default function DeliveryShow({ delivery }: { delivery: Delivery }) {
             ]}
         >
             <Head title={`Delivery #${delivery.id}`} />
-            <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 p-4 lg:p-6">
+            <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-4 p-4 lg:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div className="flex items-center gap-4">
                         <div>
@@ -84,8 +82,8 @@ export default function DeliveryShow({ delivery }: { delivery: Delivery }) {
                             </div>
                         </div>
                     </CardHeader>
-                    <CardContent className="pt-6">
-                        <div className="mb-8 grid gap-6 sm:grid-cols-2">
+                    <CardContent>
+                        <div className="mb-4 grid gap-4 sm:grid-cols-2">
                             <div className="relative flex gap-4 rounded-xl border bg-indigo-50/20 p-4 dark:bg-indigo-900/10">
                                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
                                     <MapPin className="h-6 w-6" />
@@ -111,7 +109,7 @@ export default function DeliveryShow({ delivery }: { delivery: Delivery }) {
                             </div>
                         </div>
 
-                        <div className="flex flex-wrap gap-6 rounded-lg border-t border-b bg-gray-50/50 p-4 text-sm dark:border-gray-700 dark:bg-gray-800/30">
+                        <div className="flex flex-wrap gap-4 rounded-lg border-t border-b bg-gray-50/50 p-3 text-sm dark:border-gray-700 dark:bg-gray-800/30">
                             <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                                 <Calendar className="h-4 w-4 text-indigo-500" />
                                 <span className="font-medium">Scheduled:</span>
@@ -152,36 +150,113 @@ export default function DeliveryShow({ delivery }: { delivery: Delivery }) {
                             )}
                         </div>
 
-                        <div className="mt-8 space-y-8">
-                            {delivery.status === 'assigned' && (
-                                <div className="rounded-lg border border-dashed p-4">
-                                    <ChecklistForm delivery={delivery} checklist={delivery.checklist} />
-                                </div>
-                            )}
-
-                            {(delivery.status === 'in_progress' || delivery.status === 'completed') && (
-                                <div className="grid gap-8">
-                                    <EnvironmentForm
-                                        delivery={delivery}
-                                        envLog={delivery.environment_log}
-                                        readOnly={delivery.status === 'completed'}
-                                    />
-                                    <ChainOfCustodyForm
-                                        delivery={delivery}
-                                        coc={delivery.chain_of_custody}
-                                        readOnly={delivery.status === 'completed'}
-                                    />
-                                </div>
-                            )}
-
-                            {/* Timeline */}
-                            <div className="rounded-lg border p-6 dark:border-gray-700">
-                                <h3 className="mb-6 flex items-center gap-2 text-base font-bold tracking-tight text-gray-900 uppercase dark:text-gray-100">
-                                    <div className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
-                                    Delivery Timeline
+                        {/* Read-only operational records */}
+                        {delivery.checklist && (
+                            <div className="mt-4 rounded-lg border bg-white p-4 text-sm dark:border-gray-700 dark:bg-gray-900/40">
+                                <h3 className="mb-2 text-xs font-bold tracking-wide text-gray-500 dark:text-gray-400 uppercase">
+                                    Pre-trip checklist
                                 </h3>
-                                <DeliveryTimeline delivery={delivery} />
+                                <ul className="grid grid-cols-1 gap-1 sm:grid-cols-2">
+                                    <li>
+                                        <span className="text-gray-500 dark:text-gray-400">Vehicle clean: </span>
+                                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                                            {delivery.checklist.vehicle_clean ? 'Yes' : 'No'}
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span className="text-gray-500 dark:text-gray-400">HVAC running: </span>
+                                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                                            {delivery.checklist.hvac_running ? 'Yes' : 'No'}
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span className="text-gray-500 dark:text-gray-400">Logger active: </span>
+                                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                                            {delivery.checklist.logger_active ? 'Yes' : 'No'}
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span className="text-gray-500 dark:text-gray-400">Separation verified: </span>
+                                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                                            {delivery.checklist.separation_verified ? 'Yes' : 'No'}
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span className="text-gray-500 dark:text-gray-400">Containers sealed: </span>
+                                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                                            {delivery.checklist.containers_sealed ? 'Yes' : 'No'}
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span className="text-gray-500 dark:text-gray-400">Logs completed: </span>
+                                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                                            {delivery.checklist.logs_completed ? 'Yes' : 'No'}
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span className="text-gray-500 dark:text-gray-400">Chain of custody signed: </span>
+                                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                                            {delivery.checklist.chain_of_custody_signed ? 'Yes' : 'No'}
+                                        </span>
+                                    </li>
+                                </ul>
                             </div>
+                        )}
+
+                        {/* Chain of Custody Form with Signature Pad */}
+                        <div className="mt-4">
+                            <ChainOfCustodyForm 
+                                delivery={delivery} 
+                                coc={delivery.chain_of_custody || undefined} 
+                                readOnly={delivery.status === 'completed'} 
+                            />
+                        </div>
+
+                        {delivery.environment_log && (
+                            <div className="mt-4 rounded-lg border bg-white p-4 text-sm dark:border-gray-700 dark:bg-gray-900/40">
+                                <h3 className="mb-2 text-xs font-bold tracking-wide text-gray-500 dark:text-gray-400 uppercase">
+                                    Temperature &amp; humidity
+                                </h3>
+                                <dl className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                                    <div>
+                                        <dt className="text-xs text-gray-500 dark:text-gray-400">Start</dt>
+                                        <dd className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                            {delivery.environment_log.start_temp ?? '—'}°F /{' '}
+                                            {delivery.environment_log.start_humidity ?? '—'}%
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-xs text-gray-500 dark:text-gray-400">Mid-route</dt>
+                                        <dd className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                            {delivery.environment_log.mid_temp ?? '—'}°F /{' '}
+                                            {delivery.environment_log.mid_humidity ?? '—'}%
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-xs text-gray-500 dark:text-gray-400">End</dt>
+                                        <dd className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                            {delivery.environment_log.end_temp ?? '—'}°F /{' '}
+                                            {delivery.environment_log.end_humidity ?? '—'}%
+                                        </dd>
+                                    </div>
+                                </dl>
+                                {delivery.environment_log.corrective_action && (
+                                    <div className="mt-2 border-t border-gray-100 pt-2 text-xs dark:border-gray-700">
+                                        <span className="font-semibold text-gray-700 dark:text-gray-200">Corrective action: </span>
+                                        <span className="text-gray-700 dark:text-gray-200">
+                                            {delivery.environment_log.corrective_action}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        <div className="mt-4 rounded-lg border p-4 dark:border-gray-700">
+                            <h3 className="mb-4 flex items-center gap-2 text-base font-bold tracking-tight text-gray-900 uppercase dark:text-gray-100">
+                                <div className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                                Delivery Timeline
+                            </h3>
+                            <DeliveryTimeline delivery={delivery} />
                         </div>
                     </CardContent>
                 </Card>
@@ -189,4 +264,3 @@ export default function DeliveryShow({ delivery }: { delivery: Delivery }) {
         </DriverLayout>
     );
 }
-

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { confirmAction } from '@/utils/alerts';
 import { Link, router, usePage } from '@inertiajs/react';
-import { Bell, CheckCircle2, ClipboardCheck, FileBarChart, LayoutGrid, LogOut, PlusSquare, Settings, ShoppingBag, Truck, Users } from 'lucide-react';
+import { Bell, CheckCircle2, FileBarChart, LayoutGrid, LogOut, PlusSquare, Settings, ShoppingBag, Truck, Users } from 'lucide-react';
 import React from 'react';
 
 export interface NavItem {
@@ -29,14 +29,14 @@ const getNavItems = (role: string): NavItem[] => {
                 { title: 'Users', href: '/admin/users', icon: Users },
                 { title: 'Vehicles', href: '/admin/vehicles', icon: Truck },
                 { title: 'All Deliveries', href: '/admin/deliveries', icon: ShoppingBag },
-                { title: 'Reports', href: '/admin/reports', icon: FileBarChart },
-                { title: 'Quality Reports', href: '/admin/quality-reports', icon: ClipboardCheck },
+                { title: 'Reports', href: '/admin/reports', icon: FileBarChart }
             ];
         case 'officer':
             return [
                 { title: 'Dashboard', href: '/officer/dashboard', icon: LayoutGrid },
                 { title: 'Deliveries', href: '/officer/deliveries', icon: ShoppingBag },
                 { title: 'Create Delivery', href: '/officer/deliveries/create', icon: PlusSquare },
+                { title: 'Quality Reports', href: '/officer/quality-reports', icon: FileBarChart },
             ];
         case 'driver':
             return [
@@ -79,7 +79,7 @@ export function AppHeader({ breadcrumbs = [], navItems: propNavItems = [] }: App
     return (
         <>
             <header className="sticky top-0 z-40 w-full border-b bg-white/95 shadow-sm backdrop-blur transition-all supports-[backdrop-filter]:bg-white/60 dark:bg-gray-800/95 dark:supports-[backdrop-filter]:bg-gray-800/60">
-                <div className="mx-auto px-4 md:max-w-5/6 md:px-0">
+                <div className="mx-auto px-2 md:max-w-5/6 md:px-0">
                     <div className="flex h-16 gap-2 md:gap-4">
                         <Link href={dashboardRoute} className="flex shrink-0 items-center">
                             <span className="hidden text-2xl font-bold tracking-tight text-blue-600 lg:block dark:text-blue-400">{appName}</span>

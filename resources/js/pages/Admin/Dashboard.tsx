@@ -27,7 +27,7 @@ export default function Dashboard({ stats, recent_deliveries, chart_data }: Dash
     return (
         <AdminLayout breadcrumbs={[{ title: 'Dashboard', href: '/admin/dashboard' }]}>
             <Head title="Admin Dashboard" />
-            <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
+            <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-x-hidden p-4 lg:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Overview</h1>
                     <Link
@@ -40,8 +40,8 @@ export default function Dashboard({ stats, recent_deliveries, chart_data }: Dash
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <div className="rounded-xl border bg-gray-100 p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div className="flex items-center gap-4">
+                    <div className="rounded-xl border bg-gray-100 p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div className="flex items-center gap-3">
                             <div className="rounded-md bg-indigo-50 p-3 dark:bg-indigo-900/50">
                                 <Package className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                             </div>
@@ -52,8 +52,8 @@ export default function Dashboard({ stats, recent_deliveries, chart_data }: Dash
                         </div>
                     </div>
 
-                    <div className="rounded-xl border bg-gray-100 p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div className="flex items-center gap-4">
+                    <div className="rounded-xl border bg-gray-100 p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div className="flex items-center gap-3">
                             <div className="rounded-md bg-purple-50 p-3 dark:bg-purple-900/50">
                                 <Truck className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                             </div>
@@ -64,8 +64,8 @@ export default function Dashboard({ stats, recent_deliveries, chart_data }: Dash
                         </div>
                     </div>
 
-                    <div className="rounded-xl border bg-gray-100 p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div className="flex items-center gap-4">
+                    <div className="rounded-xl border bg-gray-100 p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div className="flex items-center gap-3">
                             <div className="rounded-md bg-green-50 p-3 dark:bg-green-900/50">
                                 <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
                             </div>
@@ -76,8 +76,8 @@ export default function Dashboard({ stats, recent_deliveries, chart_data }: Dash
                         </div>
                     </div>
 
-                    <div className="rounded-xl border bg-gray-100 p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div className="flex items-center gap-4">
+                    <div className="rounded-xl border bg-gray-100 p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div className="flex items-center gap-3">
                             <div className="rounded-md bg-yellow-50 p-3 dark:bg-yellow-900/50">
                                 <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
                             </div>
@@ -89,8 +89,8 @@ export default function Dashboard({ stats, recent_deliveries, chart_data }: Dash
                     </div>
                 </div>
 
-                <div className="rounded-xl border bg-gray-100 p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <div className="mb-6 flex items-center justify-between">
+                <div className="rounded-xl border bg-gray-100 p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div className="mb-4 flex items-center justify-between">
                         <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
                             <TrendingUp className="h-5 w-5 text-indigo-500" />
                             7-Day Delivery Trend
@@ -122,17 +122,44 @@ export default function Dashboard({ stats, recent_deliveries, chart_data }: Dash
                     </div>
                 </div>
 
-                <div className="overflow-hidden rounded-xl border bg-gray-100 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <div className="flex items-center justify-between border-b px-4 py-2 dark:border-gray-700">
-                        <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">Recent Deliveries</h2>
+                <div className="min-w-0 overflow-hidden rounded-xl border bg-gray-100 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div className="flex items-center justify-between border-b px-3 py-2 dark:border-gray-700">
+                        <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Recent Deliveries</h2>
                         <Link
-                            href="/admin/deliveries"
+                            href={route('admin.deliveries')}
                             className="rounded-md border border-indigo-100/50 px-3 py-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
                         >
                             View all
                         </Link>
                     </div>
-                    <div className="overflow-x-auto border-t dark:border-gray-700">
+                    {/* Mobile: compact cards — tap to open delivery details */}
+                    <div className="space-y-2 border-t p-3 dark:border-gray-700 sm:hidden">
+                        {recent_deliveries.length === 0 ? (
+                            <p className="py-4 text-center text-sm text-muted-foreground">No recent deliveries found.</p>
+                        ) : (
+                            recent_deliveries.map((delivery) => (
+                                <Link
+                                    key={delivery.id}
+                                    href={route('admin.deliveries.show', delivery.id)}
+                                    className="block rounded-lg border bg-white p-3 transition-colors hover:bg-muted/50 dark:border-gray-700 dark:bg-gray-800/50 dark:hover:bg-gray-800"
+                                >
+                                    <div className="flex items-center justify-between gap-2">
+                                        <span className="font-mono text-xs font-semibold text-indigo-600 dark:text-indigo-400">#{delivery.id}</span>
+                                        <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ring-1 ring-inset ${getStatusColor(delivery.status)}`}>
+                                            {delivery.status.replace('_', ' ').toUpperCase()}
+                                        </span>
+                                    </div>
+                                    <p className="mt-1 truncate text-sm text-muted-foreground">{delivery.pickup_location} → {delivery.delivery_location}</p>
+                                    <p className="mt-0.5 text-xs text-muted-foreground">
+                                        {delivery.duration_minutes ? `${delivery.duration_minutes} m` : '—'}
+                                        {delivery.vehicle?.vehicle_number && ` · ${delivery.vehicle.vehicle_number}`}
+                                    </p>
+                                </Link>
+                            ))
+                        )}
+                    </div>
+                    {/* Tablet/Desktop: table — click ID to open delivery details */}
+                    <div className="hidden overflow-x-auto border-t dark:border-gray-700 sm:block">
                         <Table className="text-xs">
                             <TableHeader>
                                 <TableRow className="bg-indigo-100 hover:bg-indigo-100 dark:bg-indigo-900/50 dark:hover:bg-indigo-900/50">
@@ -147,7 +174,7 @@ export default function Dashboard({ stats, recent_deliveries, chart_data }: Dash
                             <TableBody>
                                 {recent_deliveries.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={6} className="h-16 px-3 py-2 text-center text-muted-foreground">
+                                        <TableCell colSpan={6} className="h-14 px-3 py-2 text-center text-muted-foreground">
                                             No recent deliveries found.
                                         </TableCell>
                                     </TableRow>
@@ -155,7 +182,7 @@ export default function Dashboard({ stats, recent_deliveries, chart_data }: Dash
                                     recent_deliveries.map((delivery) => (
                                         <TableRow key={delivery.id} className="hover:bg-muted/50">
                                             <TableCell className="px-3 py-2 font-medium">
-                                                <Link href={`/admin/deliveries/${delivery.id}`} className="hover:underline">
+                                                <Link href={route('admin.deliveries.show', delivery.id)} className="hover:underline">
                                                     #{delivery.id}
                                                 </Link>
                                             </TableCell>
@@ -164,7 +191,7 @@ export default function Dashboard({ stats, recent_deliveries, chart_data }: Dash
                                                 <span className="mx-1 text-muted-foreground/50">→</span>
                                                 {delivery.delivery_location}
                                             </TableCell>
-                                            <TableCell className="truncate px-3 py-2 text-muted-foreground max-w-[100px]">
+                                            <TableCell className="max-w-[100px] truncate px-3 py-2 text-muted-foreground">
                                                 {delivery.driver?.name ?? <span className="italic text-muted-foreground/60">—</span>}
                                             </TableCell>
                                             <TableCell className="px-3 py-2 text-muted-foreground">

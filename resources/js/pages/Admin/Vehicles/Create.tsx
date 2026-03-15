@@ -29,8 +29,8 @@ export default function Create() {
             ]}
         >
             <Head title="Add Vehicle" />
-            <div className="flex flex-1 flex-col gap-6 p-4 lg:p-6">
-                <div className="flex items-center gap-4">
+            <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
+                <div className="flex items-center gap-3">
                     <Button variant="ghost" size="icon" asChild className="rounded-full">
                         <Link href={route('admin.vehicles.index')}>
                             <ArrowLeft className="h-5 w-5" />
@@ -48,7 +48,7 @@ export default function Create() {
                             <CardTitle>Vehicle Registration</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <form onSubmit={submit} className="space-y-6">
+                            <form onSubmit={submit} className="space-y-4">
                                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                     <div className="space-y-2">
                                         <Label htmlFor="vehicle_number">

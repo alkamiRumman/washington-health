@@ -1,28 +1,16 @@
 import ChainOfCustodyForm from '@/components/ChainOfCustodyForm';
 import DeliveryTimeline from '@/components/DeliveryTimeline';
+import ElapsedTimer from '@/components/ElapsedTimer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import OfficerLayout from '@/layouts/OfficerLayout';
-import { Delivery, User, Vehicle } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/react';
-import { ChevronLeft, FileText, Info, MapPin, Truck, User as UserIcon } from 'lucide-react';
+import { Delivery } from '@/types';
+import { Head, Link } from '@inertiajs/react';
 
-export default function Show({ delivery, drivers = [], vehicles = [] }: { delivery: Delivery; drivers?: User[]; vehicles?: Vehicle[] }) {
-    const { data, setData, post, processing } = useForm({
-        driver_id: delivery?.driver_id?.toString() || '',
-        vehicle_id: delivery?.vehicle_id?.toString() || '',
-    });
+import { Calendar, ChevronLeft, MapPin, Truck, FileText } from 'lucide-react';
 
-    const submitAssign = (e: React.FormEvent) => {
-        e.preventDefault();
-        post(route('officer.deliveries.assign', delivery.id), {
-            preserveScroll: true,
-        });
-    };
-
+export default function DeliveryShow({ delivery }: { delivery: Delivery }) {
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'pending':
@@ -60,17 +48,17 @@ export default function Show({ delivery, drivers = [], vehicles = [] }: { delive
     return (
         <OfficerLayout
             breadcrumbs={[
-                { title: 'Deliveries', href: '/officer/deliveries' },
+                { title: 'My Deliveries', href: '/officer/deliveries' },
                 { title: `Delivery #${delivery.id}`, href: '#' },
             ]}
         >
             <Head title={`Delivery #${delivery.id}`} />
-            <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-4 p-4 lg:p-6">
+            <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-4 p-4 lg:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div className="flex items-center gap-4">
                         <div>
-                            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Delivery Information</h1>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Viewing status and compliance records for #{delivery.id}</p>
+                            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Delivery Details</h1>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Viewing comprehensive information for delivery #{delivery.id}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -85,170 +73,203 @@ export default function Show({ delivery, drivers = [], vehicles = [] }: { delive
                         <Button variant="outline" size="sm" asChild className="gap-2">
                             <Link href={route('officer.deliveries.index')}>
                                 <ChevronLeft className="h-4 w-4" />
-                                Back
+                                Back to List
                             </Link>
                         </Button>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                    <div className="space-y-6 lg:col-span-2">
-                        <Card className="overflow-hidden pt-0 shadow-sm dark:border-gray-700">
-                            <CardHeader className="border-b bg-indigo-100 py-4 dark:bg-indigo-900/50">
-                                <div className="flex items-center justify-between">
-                                    <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-                                        <Info className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                                        SHIPMENT DETAILS
-                                    </CardTitle>
-                                    <div className="flex items-center gap-3">{getStatusBadge(delivery.status)}</div>
+                <Card className="overflow-hidden pt-0 shadow-sm dark:border-gray-700">
+                    <CardHeader className="border-b bg-indigo-100 py-4 dark:bg-indigo-900/50">
+                        <div className="flex items-center justify-between">
+                            <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+                                <Truck className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                                SHIPMENT INFO
+                            </CardTitle>
+                            <div className="flex items-center gap-3">
+                                {getStatusBadge(delivery.status)}
+                                <span className="font-mono text-xs text-indigo-900/60 dark:text-indigo-200/60">ID: #{delivery.id}</span>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="mb-4 grid gap-4 sm:grid-cols-2">
+                            <div className="relative flex gap-4 rounded-xl border bg-indigo-50/20 p-4 dark:bg-indigo-900/10">
+                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
+                                    <MapPin className="h-6 w-6" />
                                 </div>
-                            </CardHeader>
-                            <CardContent className="pt-6">
-                                <div className="mb-8 grid gap-6 sm:grid-cols-2">
-                                    <div className="relative flex gap-4 rounded-xl border bg-indigo-50/20 p-4 dark:bg-indigo-900/10">
-                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
-                                            <MapPin className="h-6 w-6" />
-                                        </div>
-                                        <div className="min-w-0">
-                                            <p className="text-[10px] font-bold tracking-wider text-indigo-500 uppercase">Pickup Location</p>
-                                            <p className="mt-0.5 text-base leading-tight font-semibold text-gray-900 dark:text-white">
-                                                {delivery.pickup_location}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="relative flex gap-4 rounded-xl border bg-emerald-50/20 p-4 dark:bg-emerald-900/10">
-                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
-                                            <MapPin className="h-6 w-6" />
-                                        </div>
-                                        <div className="min-w-0">
-                                            <p className="text-[10px] font-bold tracking-wider text-emerald-500 uppercase">Delivery Location</p>
-                                            <p className="mt-0.5 text-base leading-tight font-semibold text-gray-900 dark:text-white">
-                                                {delivery.delivery_location}
-                                            </p>
-                                        </div>
-                                    </div>
+                                <div className="min-w-0">
+                                    <p className="text-[10px] font-bold tracking-wider text-indigo-500 uppercase">Pickup Location</p>
+                                    <p className="mt-0.5 text-base leading-tight font-semibold text-gray-900 dark:text-white">
+                                        {delivery.pickup_location}
+                                    </p>
                                 </div>
+                            </div>
 
-                                <div className="grid grid-cols-2 gap-8 border-t pt-6 text-sm">
-                                    <div className="space-y-4">
-                                        <div>
-                                            <p className="mb-1 text-[10px] font-bold tracking-widest text-gray-500 uppercase">Assigned Driver</p>
-                                            <div className="flex items-center gap-2 font-medium">
-                                                <UserIcon className="h-3.5 w-3.5 text-gray-400" />
-                                                {delivery.driver?.name || <span className="text-gray-400 italic">None assigned</span>}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <p className="mb-1 text-[10px] font-bold tracking-widest text-gray-500 uppercase">Target vehicle</p>
-                                            <div className="flex items-center gap-2 font-medium">
-                                                <Truck className="h-3.5 w-3.5 text-gray-400" />
-                                                {delivery.vehicle?.vehicle_number || <span className="text-gray-400 italic">None assigned</span>}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-4">
-                                        <div>
-                                            <p className="mb-1 text-[10px] font-bold tracking-widest text-gray-500 uppercase">Scheduled At</p>
-                                            <p className="font-medium">{new Date(delivery.scheduled_time).toLocaleString()}</p>
-                                        </div>
-                                        <div>
-                                            <p className="mb-1 text-[10px] font-bold tracking-widest text-gray-500 uppercase">Created By</p>
-                                            <p className="font-medium text-gray-900 dark:text-gray-100">
-                                                {delivery.officer?.name || 'Security Dept'}
-                                            </p>
-                                        </div>
-                                    </div>
+                            <div className="relative flex gap-4 rounded-xl border bg-emerald-50/20 p-4 dark:bg-emerald-900/10">
+                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                    <MapPin className="h-6 w-6" />
                                 </div>
+                                <div className="min-w-0">
+                                    <p className="text-[10px] font-bold tracking-wider text-emerald-500 uppercase">Delivery Location</p>
+                                    <p className="mt-0.5 text-base leading-tight font-semibold text-gray-900 dark:text-white">
+                                        {delivery.delivery_location}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
 
-                                {delivery.notes && (
-                                    <div className="mt-6 rounded-lg bg-gray-50 p-4 dark:bg-gray-800/50">
-                                        <p className="mb-1 text-[10px] font-bold tracking-widest text-gray-500 uppercase">Officer Notes</p>
-                                        <p className="text-sm text-gray-700 italic underline decoration-gray-200 underline-offset-4 dark:text-gray-300 dark:decoration-gray-700">
-                                            {delivery.notes}
-                                        </p>
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
+                        <div className="flex flex-wrap gap-4 rounded-lg border-t border-b bg-gray-50/50 p-3 text-sm dark:border-gray-700 dark:bg-gray-800/30">
+                            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                <Calendar className="h-4 w-4 text-indigo-500" />
+                                <span className="font-medium">Scheduled:</span>
+                                <span className="text-gray-900 dark:text-white">
+                                    {new Date(delivery.scheduled_time).toLocaleString('en-US', {
+                                        weekday: 'short',
+                                        month: 'short',
+                                        day: 'numeric',
+                                        hour: 'numeric',
+                                        minute: '2-digit',
+                                    })}
+                                </span>
+                            </div>
 
-                        {delivery.status === 'completed' && (
-                            <Card className="overflow-hidden shadow-sm dark:border-gray-700">
-                                <CardHeader className="border-b bg-indigo-100/50 py-3 dark:bg-indigo-900/30">
-                                    <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-                                        <FileText className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                                        CHAIN OF CUSTODY RECORDS
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="pt-6">
-                                    <ChainOfCustodyForm delivery={delivery} coc={delivery.chain_of_custody} readOnly={true} />
-                                </CardContent>
-                            </Card>
-                        )}
-                    </div>
+                            {delivery.vehicle && (
+                                <div className="flex items-center gap-2 border-l pl-6 text-gray-600 dark:border-gray-700 dark:text-gray-400">
+                                    <Truck className="h-4 w-4 text-indigo-500" />
+                                    <span className="font-medium">Vehicle:</span>
+                                    <span className="rounded border bg-white px-2 py-0.5 font-mono text-gray-900 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
+                                        {delivery.vehicle.vehicle_number}
+                                    </span>
+                                </div>
+                            )}
 
-                    <div className="space-y-6">
-                        {['pending', 'assigned', 'picked_up', 'in_transit', 'in_progress'].includes(delivery.status) && (
-                            <Card className="border-indigo-200 shadow-sm dark:border-indigo-900/50">
-                                <CardHeader className="py-4">
-                                    <CardTitle className="text-sm font-bold tracking-tight uppercase">Assignment Control</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <form onSubmit={submitAssign} className="space-y-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="driver_id">Driver</Label>
-                                            <Select value={data.driver_id} onValueChange={(v) => setData('driver_id', v)}>
-                                                <SelectTrigger id="driver_id">
-                                                    <SelectValue placeholder="Select a driver..." />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {drivers.map((d) => (
-                                                        <SelectItem key={d.id} value={String(d.id)}>
-                                                            {d.name}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="vehicle_id">Vehicle</Label>
-                                            <Select value={data.vehicle_id} onValueChange={(v) => setData('vehicle_id', v)}>
-                                                <SelectTrigger id="vehicle_id">
-                                                    <SelectValue placeholder="Select a vehicle..." />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {vehicles.map((v) => (
-                                                        <SelectItem key={v.id} value={String(v.id)}>
-                                                            {v.vehicle_number} - {v.description}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <Button type="submit" disabled={processing} className="w-full bg-indigo-600 hover:bg-indigo-700">
-                                            {delivery.status === 'pending' ? 'Post Assignment' : 'Update Details'}
-                                        </Button>
-                                    </form>
-                                </CardContent>
-                            </Card>
+                            {delivery.status === 'in_progress' && delivery.start_time && (
+                                <div className="flex items-center gap-2 border-l pl-6 text-indigo-600 dark:border-gray-700 dark:text-indigo-400">
+                                    <span className="text-xs font-bold uppercase">ELAPSED:</span>
+                                    <ElapsedTimer startTime={delivery.start_time} />
+                                </div>
+                            )}
+
+                            {delivery.status === 'completed' && delivery.duration_minutes != null && (
+                                <div className="flex items-center gap-2 border-l pl-6 text-emerald-600 dark:border-gray-700 dark:text-emerald-400">
+                                    <Badge variant="outline" className="border-emerald-100 bg-emerald-50 font-bold text-emerald-700">
+                                        COMPLETED IN {delivery.duration_minutes} MINS
+                                    </Badge>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Read-only operational records */}
+                        {delivery.checklist && (
+                            <div className="mt-4 rounded-lg border bg-white p-4 text-sm dark:border-gray-700 dark:bg-gray-900/40">
+                                <h3 className="mb-2 text-xs font-bold tracking-wide text-gray-500 dark:text-gray-400 uppercase">
+                                    Pre-trip checklist
+                                </h3>
+                                <ul className="grid grid-cols-1 gap-1 sm:grid-cols-2">
+                                    <li>
+                                        <span className="text-gray-500 dark:text-gray-400">Vehicle clean: </span>
+                                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                                            {delivery.checklist.vehicle_clean ? 'Yes' : 'No'}
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span className="text-gray-500 dark:text-gray-400">HVAC running: </span>
+                                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                                            {delivery.checklist.hvac_running ? 'Yes' : 'No'}
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span className="text-gray-500 dark:text-gray-400">Logger active: </span>
+                                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                                            {delivery.checklist.logger_active ? 'Yes' : 'No'}
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span className="text-gray-500 dark:text-gray-400">Separation verified: </span>
+                                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                                            {delivery.checklist.separation_verified ? 'Yes' : 'No'}
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span className="text-gray-500 dark:text-gray-400">Containers sealed: </span>
+                                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                                            {delivery.checklist.containers_sealed ? 'Yes' : 'No'}
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span className="text-gray-500 dark:text-gray-400">Logs completed: </span>
+                                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                                            {delivery.checklist.logs_completed ? 'Yes' : 'No'}
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span className="text-gray-500 dark:text-gray-400">Chain of custody signed: </span>
+                                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                                            {delivery.checklist.chain_of_custody_signed ? 'Yes' : 'No'}
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
                         )}
 
-                        <Card className="shadow-sm">
-                            <CardHeader className="py-4">
-                                <CardTitle className="text-sm font-bold tracking-tight uppercase">Event Timeline</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <DeliveryTimeline delivery={delivery} />
-                                {delivery.duration_minutes != null && (
-                                    <div className="mt-6 border-t pt-4">
-                                        <p className="text-xs text-muted-foreground">Total Cycle Time</p>
-                                        <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{delivery.duration_minutes} Minutes</p>
+                        {/* Chain of Custody Form with Signature Pad */}
+                        <div className="mt-4">
+                            <ChainOfCustodyForm 
+                                delivery={delivery} 
+                                coc={delivery.chain_of_custody || undefined} 
+                                readOnly={delivery.status === 'completed'} 
+                            />
+                        </div>
+
+                        {delivery.environment_log && (
+                            <div className="mt-4 rounded-lg border bg-white p-4 text-sm dark:border-gray-700 dark:bg-gray-900/40">
+                                <h3 className="mb-2 text-xs font-bold tracking-wide text-gray-500 dark:text-gray-400 uppercase">
+                                    Temperature &amp; humidity
+                                </h3>
+                                <dl className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                                    <div>
+                                        <dt className="text-xs text-gray-500 dark:text-gray-400">Start</dt>
+                                        <dd className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                            {delivery.environment_log.start_temp ?? '—'}°F /{' '}
+                                            {delivery.environment_log.start_humidity ?? '—'}%
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-xs text-gray-500 dark:text-gray-400">Mid-route</dt>
+                                        <dd className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                            {delivery.environment_log.mid_temp ?? '—'}°F /{' '}
+                                            {delivery.environment_log.mid_humidity ?? '—'}%
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-xs text-gray-500 dark:text-gray-400">End</dt>
+                                        <dd className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                            {delivery.environment_log.end_temp ?? '—'}°F /{' '}
+                                            {delivery.environment_log.end_humidity ?? '—'}%
+                                        </dd>
+                                    </div>
+                                </dl>
+                                {delivery.environment_log.corrective_action && (
+                                    <div className="mt-2 border-t border-gray-100 pt-2 text-xs dark:border-gray-700">
+                                        <span className="font-semibold text-gray-700 dark:text-gray-200">Corrective action: </span>
+                                        <span className="text-gray-700 dark:text-gray-200">
+                                            {delivery.environment_log.corrective_action}
+                                        </span>
                                     </div>
                                 )}
-                            </CardContent>
-                        </Card>
-                    </div>
-                </div>
+                            </div>
+                        )}
+
+                        <div className="mt-4 rounded-lg border p-4 dark:border-gray-700">
+                            <h3 className="mb-4 flex items-center gap-2 text-base font-bold tracking-tight text-gray-900 uppercase dark:text-gray-100">
+                                <div className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                                Delivery Timeline
+                            </h3>
+                            <DeliveryTimeline delivery={delivery} />
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
         </OfficerLayout>
     );

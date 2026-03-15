@@ -148,7 +148,7 @@ class DashboardController extends Controller
 
     public function show(Delivery $delivery)
     {
-        $delivery->load(['driver', 'vehicle', 'chainOfCustody', 'officer']);
+        $delivery->load(['driver', 'vehicle', 'checklist', 'environmentLog', 'chainOfCustody', 'officer']);
 
         $drivers = User::where('role', 'driver')->get(['id', 'name']);
         $vehicles = Vehicle::active()->get(['id', 'vehicle_number', 'description']);

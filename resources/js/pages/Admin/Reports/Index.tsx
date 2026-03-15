@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AdminLayout from '@/layouts/AdminLayout';
 import { ReportProps } from '@/types';
 import { Head, Link } from '@inertiajs/react';
-import { Car, CheckCircle, ClipboardList, Clock, Package, ShieldCheck, Truck } from 'lucide-react';
+import { Car, CheckCircle, ClipboardCheck, ClipboardList, Clock, Package, ShieldCheck, Truck } from 'lucide-react';
 import { Cell, Legend, Pie, PieChart, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
 export default function Index({
@@ -40,8 +40,8 @@ export default function Index({
 
                 {/* Scorecards */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <div className="rounded-xl border bg-gray-100 p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div className="flex items-center gap-4">
+                    <div className="rounded-xl border bg-gray-100 p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div className="flex items-center gap-3">
                             <div className="rounded-md bg-indigo-50 p-3 dark:bg-indigo-900/50">
                                 <Package className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                             </div>
@@ -52,8 +52,8 @@ export default function Index({
                         </div>
                     </div>
 
-                    <div className="rounded-xl border bg-gray-100 p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div className="flex items-center gap-4">
+                    <div className="rounded-xl border bg-gray-100 p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div className="flex items-center gap-3">
                             <div className="rounded-md bg-green-50 p-3 dark:bg-green-900/50">
                                 <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
                             </div>
@@ -64,8 +64,8 @@ export default function Index({
                         </div>
                     </div>
 
-                    <div className="rounded-xl border bg-gray-100 p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div className="flex items-center gap-4">
+                    <div className="rounded-xl border bg-gray-100 p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div className="flex items-center gap-3">
                             <div className="rounded-md bg-purple-50 p-3 dark:bg-purple-900/50">
                                 <Truck className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                             </div>
@@ -76,8 +76,8 @@ export default function Index({
                         </div>
                     </div>
 
-                    <div className="rounded-xl border bg-gray-100 p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div className="flex items-center gap-4">
+                    <div className="rounded-xl border bg-gray-100 p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div className="flex items-center gap-3">
                             <div className="rounded-md bg-yellow-50 p-3 dark:bg-yellow-900/50">
                                 <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
                             </div>
@@ -89,10 +89,9 @@ export default function Index({
                     </div>
                 </div>
 
-                {/* Compliance Log Reports */}
+                {/* Log Reports */}
                 <div>
-                    <h2 className="mb-3 text-base font-semibold text-gray-900 dark:text-gray-100">Compliance Log Reports</h2>
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <Link
                             href={route('admin.reports.coc-log')}
                             className="group flex items-start gap-4 rounded-xl border bg-gray-100 p-5 shadow-sm transition-all hover:border-indigo-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-indigo-500"
@@ -125,13 +124,30 @@ export default function Index({
                                 </p>
                             </div>
                         </Link>
+                        <Link
+                            href={route('admin.quality-reports.index')}
+                            className="group flex items-start gap-4 rounded-xl border bg-gray-100 p-5 shadow-sm transition-all hover:border-yellow-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-yellow-500"
+                        >
+                            <div className="flex-shrink-0 rounded-lg bg-yellow-50 p-3 transition-colors group-hover:bg-yellow-100 dark:bg-yellow-900/40 dark:group-hover:bg-yellow-900/60">
+                                <ClipboardCheck className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+                            </div>
+                            <div>
+                                <p className="font-semibold text-gray-900 transition-colors group-hover:text-yellow-700 dark:text-gray-100 dark:group-hover:text-yellow-300">
+                                    Quality Reports
+                                </p>
+                                <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+                                    Quality reports for vehicles and deliveries. Filter by date range or driver.
+                                </p>
+                            </div>
+                        </Link>
+                        
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                     {/* Charts */}
-                    <div className="flex h-[450px] flex-col items-center rounded-xl border bg-gray-100 p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <h2 className="mb-6 w-full text-lg font-semibold text-gray-900 dark:text-gray-100">Delivery Status Distribution</h2>
+                    <div className="flex h-[450px] flex-col items-center rounded-xl border bg-gray-100 p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <h2 className="mb-4 w-full text-lg font-semibold text-gray-900 dark:text-gray-100">Delivery Status Distribution</h2>
                         {statusData.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
@@ -151,7 +167,7 @@ export default function Index({
 
                     {/* Top Drivers */}
                     <div className="flex h-[450px] flex-col overflow-hidden rounded-xl border bg-gray-100 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div className="border-b px-6 py-4 dark:border-gray-700">
+                        <div className="border-b px-4 py-3 dark:border-gray-700">
                             <h2 className="flex items-center gap-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
                                 <Car className="h-5 w-5 text-gray-400" />
                                 Top Drivers by Deliveries
@@ -192,7 +208,7 @@ export default function Index({
 
                 {/* Recent Completed Deliveries */}
                 <div className="overflow-hidden rounded-xl border bg-gray-100 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <div className="border-b px-6 py-4 dark:border-gray-700">
+                    <div className="border-b px-4 py-3 dark:border-gray-700">
                         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recently Completed</h2>
                     </div>
                     <div className="overflow-x-auto">

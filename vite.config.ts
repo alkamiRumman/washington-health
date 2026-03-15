@@ -15,7 +15,8 @@ export default defineConfig({
         tailwindcss(),
     ],
     server: {
-        host: '0.0.0.0',
+        // host: '0.0.0.0', // Commented out to prevent ERR_CONNECTION_TIMED_OUT on Windows
+        host: 'localhost',
     },
     esbuild: {
         jsx: 'automatic',

@@ -106,7 +106,7 @@ function DeliveryCard({ delivery, hasInProgress, canStartDelivery, onStartClick,
     const dateStr = scheduled.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
     return (
-        <Card className="overflow-hidden pt-0 transition-all hover:shadow-md dark:border-gray-700">
+        <Card className="overflow-hidden p-0 transition-all hover:shadow-md dark:border-gray-700">
             <CardHeader className="border-b bg-gray-50/50 dark:bg-gray-800/50">
                 <div className="flex items-stretch">
                     <div className="flex min-w-[6rem] flex-col justify-center border-r bg-indigo-50/50 px-4 py-3 dark:border-gray-700 dark:bg-indigo-900/20">
@@ -120,8 +120,8 @@ function DeliveryCard({ delivery, hasInProgress, canStartDelivery, onStartClick,
                 </div>
             </CardHeader>
 
-            <CardContent className="p-5">
-                <div className="mb-4 flex items-stretch gap-3">
+            <CardContent className="px-5 py-0">
+                <div className="mb-4 flex items-stretch gap-2">
                     <div className="flex min-w-0 flex-1 flex-col rounded-lg bg-indigo-50/30 p-3 dark:bg-indigo-900/10">
                         <p className="text-[10px] font-bold tracking-wider text-indigo-600/70 uppercase dark:text-indigo-400/70">Pickup Location</p>
                         <p className="mt-0.5 truncate text-sm font-semibold text-foreground" title={delivery.pickup_location}>
@@ -157,7 +157,7 @@ function DeliveryCard({ delivery, hasInProgress, canStartDelivery, onStartClick,
                 </div>
 
                 {delivery.status === 'assigned' && (
-                    <div className="mt-6 border-t border-dashed pt-4 dark:border-gray-700">
+                    <div className="dark:border-gray-700">
                         <ChecklistForm
                             key={delivery.id}
                             delivery={delivery}
@@ -168,9 +168,9 @@ function DeliveryCard({ delivery, hasInProgress, canStartDelivery, onStartClick,
                 )}
 
                 {(delivery.status === 'in_transit' || delivery.status === 'in_progress' || delivery.status === 'completed') && (
-                    <div className="mt-6 space-y-4 border-t border-dashed pt-4 dark:border-gray-700">
-                        <EnvironmentForm delivery={delivery} envLog={delivery.environment_log} readOnly={delivery.status === 'completed'} />
+                    <div className="space-y-4 dark:border-gray-700">
                         <ChainOfCustodyForm delivery={delivery} coc={delivery.chain_of_custody} readOnly={delivery.status === 'completed'} />
+                        <EnvironmentForm delivery={delivery} envLog={delivery.environment_log} readOnly={delivery.status === 'completed'} />
                     </div>
                 )}
             </CardContent>
@@ -270,8 +270,8 @@ export default function MyDeliveries({ deliveries }: { deliveries: Delivery[] })
         <DriverLayout breadcrumbs={[{ title: 'My Deliveries', href: '/driver/deliveries' }]}>
             <Head title="My Deliveries" />
 
-            <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 p-4 lg:p-6">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-4 p-4 lg:p-6">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">My Deliveries</h1>
                         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage your assigned routes and complete deliveries.</p>
@@ -322,7 +322,7 @@ export default function MyDeliveries({ deliveries }: { deliveries: Delivery[] })
                                     <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
                                 </div>
 
-                                <div className="grid gap-6">
+                                <div className="grid gap-4">
                                     {groupItems.map((d) => (
                                         <DeliveryCard
                                             key={d.id}

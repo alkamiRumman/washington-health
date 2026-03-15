@@ -104,7 +104,7 @@ class DeliveryController extends Controller
             abort(403);
         }
 
-        $delivery->load(['driver', 'vehicle', 'chainOfCustody']);
+        $delivery->load(['driver', 'vehicle', 'checklist', 'environmentLog', 'chainOfCustody']);
 
         $drivers = User::where('role', 'driver')->get(['id', 'name']);
         $vehicles = Vehicle::active()->get(['id', 'vehicle_number', 'description']);

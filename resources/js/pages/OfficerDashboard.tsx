@@ -26,11 +26,11 @@ export default function OfficerDashboard({ stats, recent_deliveries }: Dashboard
     return (
         <OfficerLayout breadcrumbs={[{ title: 'Officer Dashboard', href: '/officer/dashboard' }]}>
             <Head title="Officer Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-2 p-4 lg:p-6">
-                <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Officer Dashboard</h1>
-                <div className="mt-2 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <div className="rounded-xl border bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div className="flex items-center gap-6">
+            <div className="flex h-full min-w-0 flex-1 flex-col gap-4 overflow-x-hidden p-4 lg:p-6">
+                <h1 className="text-xl font-bold tracking-tight text-gray-900 dark:text-gray-100 sm:text-2xl">Officer Dashboard</h1>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="rounded-xl border bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div className="flex items-center gap-3">
                             <div className="rounded-md bg-blue-50 p-3 dark:bg-blue-900/50">
                                 <Package className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                             </div>
@@ -40,8 +40,8 @@ export default function OfficerDashboard({ stats, recent_deliveries }: Dashboard
                             </div>
                         </div>
                     </div>
-                    <div className="rounded-xl border bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div className="flex items-center gap-6">
+                    <div className="rounded-xl border bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div className="flex items-center gap-3">
                             <div className="rounded-md bg-yellow-50 p-3 dark:bg-yellow-900/50">
                                 <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
                             </div>
@@ -51,8 +51,8 @@ export default function OfficerDashboard({ stats, recent_deliveries }: Dashboard
                             </div>
                         </div>
                     </div>
-                    <div className="rounded-xl border bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div className="flex items-center gap-6">
+                    <div className="rounded-xl border bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div className="flex items-center gap-3">
                             <div className="rounded-md bg-indigo-50 p-3 dark:bg-indigo-900/50">
                                 <Truck className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                             </div>
@@ -62,8 +62,8 @@ export default function OfficerDashboard({ stats, recent_deliveries }: Dashboard
                             </div>
                         </div>
                     </div>
-                    <div className="rounded-xl border bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div className="flex items-center gap-6">
+                    <div className="rounded-xl border bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div className="flex items-center gap-3">
                             <div className="rounded-md bg-green-50 p-3 dark:bg-green-900/50">
                                 <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
                             </div>
@@ -75,9 +75,9 @@ export default function OfficerDashboard({ stats, recent_deliveries }: Dashboard
                     </div>
                 </div>
 
-                <div className="mt-3 overflow-hidden rounded-xl border bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <div className="flex items-center justify-between border-b px-4 py-2 dark:border-gray-700">
-                        <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">Recent Deliveries</h2>
+                <div className="overflow-hidden rounded-xl border bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div className="flex items-center justify-between border-b px-3 py-2 dark:border-gray-700">
+                        <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Recent Deliveries</h2>
                         <Link
                             href="/officer/deliveries"
                             className="cursor-pointer text-xs font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
@@ -85,7 +85,34 @@ export default function OfficerDashboard({ stats, recent_deliveries }: Dashboard
                             View all
                         </Link>
                     </div>
-                    <div className="overflow-x-auto">
+                    {/* Mobile: compact cards */}
+                    <div className="space-y-2 p-3 sm:hidden">
+                        {recent_deliveries.length === 0 ? (
+                            <p className="py-4 text-center text-sm text-muted-foreground">No recent deliveries found.</p>
+                        ) : (
+                            recent_deliveries.map((delivery) => (
+                                <Link
+                                    key={delivery.id}
+                                    href={route('officer.deliveries.show', delivery.id)}
+                                    className="block rounded-lg border bg-muted/30 p-3 transition-colors hover:bg-muted/50 dark:border-gray-700 dark:bg-gray-800/50"
+                                >
+                                    <div className="flex items-center justify-between gap-2">
+                                        <span className="font-mono text-xs font-semibold text-indigo-600 dark:text-indigo-400">#{delivery.id}</span>
+                                        <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ring-1 ring-inset ${getStatusColor(delivery.status)}`}>
+                                            {delivery.status.replace('_', ' ').toUpperCase()}
+                                        </span>
+                                    </div>
+                                    <p className="mt-1 truncate text-sm text-muted-foreground">{delivery.pickup_location} → {delivery.delivery_location}</p>
+                                    <p className="mt-0.5 text-xs text-muted-foreground">
+                                        {delivery.duration_minutes ? `${delivery.duration_minutes} m` : '—'}
+                                        {delivery.vehicle?.vehicle_number && ` · ${delivery.vehicle.vehicle_number}`}
+                                    </p>
+                                </Link>
+                            ))
+                        )}
+                    </div>
+                    {/* Tablet/Desktop: table */}
+                    <div className="hidden overflow-x-auto sm:block">
                         <Table className="text-xs">
                             <TableHeader>
                                 <TableRow className="bg-indigo-100 hover:bg-indigo-100 dark:bg-indigo-900/50 dark:hover:bg-indigo-900/50">
@@ -100,7 +127,7 @@ export default function OfficerDashboard({ stats, recent_deliveries }: Dashboard
                             <TableBody>
                                 {recent_deliveries.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={6} className="h-16 px-3 py-2 text-center text-muted-foreground">
+                                        <TableCell colSpan={6} className="h-14 px-3 py-2 text-center text-muted-foreground">
                                             No recent deliveries found.
                                         </TableCell>
                                     </TableRow>
@@ -108,7 +135,7 @@ export default function OfficerDashboard({ stats, recent_deliveries }: Dashboard
                                     recent_deliveries.map((delivery) => (
                                         <TableRow key={delivery.id} className="hover:bg-muted/50">
                                             <TableCell className="px-3 py-2 font-medium">
-                                                <Link href={`/officer/deliveries/${delivery.id}`} className="hover:underline">
+                                                <Link href={route('officer.deliveries.show', delivery.id)} className="hover:underline">
                                                     #{delivery.id}
                                                 </Link>
                                             </TableCell>

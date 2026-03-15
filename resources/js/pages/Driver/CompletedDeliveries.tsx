@@ -24,7 +24,7 @@ export default function CompletedDeliveries({ deliveries }: Props) {
         >
             <Head title="Completed Deliveries" />
 
-            <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 p-4 lg:p-6">
+            <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-1 flex-col gap-4 overflow-x-hidden p-4 lg:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Completed History</h1>
@@ -38,7 +38,7 @@ export default function CompletedDeliveries({ deliveries }: Props) {
                     </Button>
                 </div>
 
-                <Card className="overflow-hidden pt-0 shadow-sm dark:border-gray-700">
+                <Card className="overflow-hidden p-0 shadow-sm dark:border-gray-700 gap-0">
                     <CardHeader className="border-b bg-indigo-100 py-4 dark:bg-indigo-900/50">
                         <CardTitle className="flex items-center gap-2 text-sm font-semibold">
                             <History className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />

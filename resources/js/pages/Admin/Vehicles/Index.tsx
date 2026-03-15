@@ -59,7 +59,7 @@ export default function Index({ vehicles, filters }: { vehicles: PaginatedData<V
     return (
         <AdminLayout breadcrumbs={[{ title: 'Vehicles', href: '/admin/vehicles' }]}>
             <Head title="Manage Vehicles" />
-            <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
+            <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-x-hidden p-4 lg:p-6">
                 <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Vehicle Management</h1>
@@ -158,7 +158,7 @@ export default function Index({ vehicles, filters }: { vehicles: PaginatedData<V
                         />
                     ))}
                     {vehicles.data.length === 0 && (
-                        <div className="rounded-xl border bg-white p-8 text-center text-muted-foreground dark:border-gray-700 dark:bg-gray-800">
+                        <div className="rounded-xl border bg-white p-6 text-center text-muted-foreground dark:border-gray-700 dark:bg-gray-800">
                             No vehicles found matching the criteria.
                         </div>
                     )}

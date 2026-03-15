@@ -1,18 +1,19 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Link } from '@inertiajs/react';
-import { Calendar as CalendarIcon, Eye, FileText, Trash2, Truck, User as UserIcon } from 'lucide-react';
 import type { Delivery } from '@/types';
+import { Link } from '@inertiajs/react';
+import { Calendar as CalendarIcon, ClipboardCheck, Eye, FileText, Trash2, Truck, User as UserIcon } from 'lucide-react';
 
 interface AdminDeliveryCardProps {
     delivery: Delivery;
     statusLabel: string;
     statusClassName: string;
     onDelete: (id: number) => void;
+    onReview: (delivery: Delivery) => void;
 }
 
-export function AdminDeliveryCard({ delivery, statusLabel, statusClassName, onDelete }: AdminDeliveryCardProps) {
+export function AdminDeliveryCard({ delivery, statusLabel, statusClassName, onDelete, onReview }: AdminDeliveryCardProps) {
     return (
         <Card className="shadow-sm transition-shadow last:mb-0 dark:border-gray-700 md:mb-0">
             <CardContent className="p-4">
@@ -68,6 +69,15 @@ export function AdminDeliveryCard({ delivery, statusLabel, statusClassName, onDe
 
                     <div className="flex shrink-0 flex-col items-end gap-1">
                         <div className="flex items-center gap-1">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-indigo-600 hover:text-indigo-700"
+                                title="Review Delivery"
+                                onClick={() => onReview(delivery)}
+                            >
+                                <ClipboardCheck className="h-4 w-4" />
+                            </Button>
                             <Button variant="ghost" size="icon" asChild className="h-11 w-11 touch-manipulation text-blue-600">
                                 <a
                                     href={route('compliance.export', delivery.id)}

@@ -87,7 +87,7 @@ export default function SignaturePad({ label, onSave, existingSignature, readOnl
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
 
             {!showPad && existingSignature && (
-                <div className="flex flex-col items-center gap-2 rounded-md border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-800">
+                <div className="flex flex-col items-center rounded-md border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-800">
                     <img src={existingSignature} alt={`${label} signature`} className="max-h-32 object-contain filter dark:invert" />
                     {!readOnly && (
                         <button
@@ -104,11 +104,11 @@ export default function SignaturePad({ label, onSave, existingSignature, readOnl
             )}
 
             {showPad && !readOnly && (
-                <div className="relative flex flex-col gap-2 overflow-hidden rounded-md border border-gray-200 dark:border-gray-600">
+                <div className="relative flex flex-col overflow-hidden rounded-md border border-gray-200 dark:border-gray-600">
                     <div className="bg-white">
                         <SignatureCanvas
                             ref={padRef}
-                            canvasProps={{ className: 'w-full h-32' }}
+                            canvasProps={{ className: 'w-full h-40' }}
                             onEnd={() => {
                                 setIsSigned(!padRef.current?.isEmpty());
                             }}

@@ -4,16 +4,16 @@ import { Pagination } from '@/components/custom/Pagination';
 import { QualityReviewForm } from '@/components/QualityReviewForm';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AdminLayout from '@/layouts/AdminLayout';
 import { Delivery, PaginatedData, User, Vehicle } from '@/types';
-import { Head, Link, router, useForm } from '@inertiajs/react';
-import { Calendar as CalendarIcon, ClipboardCheck, Download, Eye, FileText, Filter, RotateCcw, Search, Shuffle, Trash2, Truck, User as UserIcon } from 'lucide-react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { Calendar as CalendarIcon, ClipboardCheck, Download, Eye, FileText, Filter, RotateCcw, Shuffle, Trash2, Truck, User as UserIcon } from 'lucide-react';
 import { useState } from 'react';
 
 interface DeliveriesProps {
@@ -31,10 +31,13 @@ interface DeliveriesProps {
 }
 
 export default function Index({ deliveries, drivers, vehicles, filters }: DeliveriesProps) {
+    const { auth } = usePage().props as unknown as { auth: { user?: { name?: string } } };
     const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
     const [reviewOpen, setReviewOpen] = useState(false);
     const [reviewDeliveryId, setReviewDeliveryId] = useState<number | null>(null);
     const [reviewVehicleId, setReviewVehicleId] = useState<number | null>(null);
+    const [reviewVehicleIds, setReviewVehicleIds] = useState<string | null>(null);
+    const [showFilters, setShowFilters] = useState(false);
     const { data, setData, get, processing } = useForm({
         id: filters.id || '',
         status: filters.status || '',
@@ -44,9 +47,19 @@ export default function Index({ deliveries, drivers, vehicles, filters }: Delive
         date_to: filters.date_to || '',
     });
 
+    const activeFiltersCount = Object.values(filters).filter(v => v !== '' && v !== null && v !== undefined).length;
+
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        get(route('admin.deliveries'), { preserveState: true });
+        if (window.innerWidth < 640) setShowFilters(false);
+        get(route('admin.deliveries'), { preserveState: true, preserveScroll: true });
+    };
+
+    const handleFilterSelect = (key: string, val: any) => {
+        setData(key as any, val);
+        const newData = { ...data, [key]: val };
+        if (window.innerWidth < 640) setShowFilters(false);
+        router.get(route('admin.deliveries'), newData as any, { preserveState: true, preserveScroll: true });
     };
 
     const handleExport = () => {
@@ -69,6 +82,7 @@ export default function Index({ deliveries, drivers, vehicles, filters }: Delive
             date_from: '',
             date_to: '',
         });
+        if (window.innerWidth < 640) setShowFilters(false);
         router.get(route('admin.deliveries'), {}, { preserveState: false });
     };
 
@@ -78,8 +92,16 @@ export default function Index({ deliveries, drivers, vehicles, filters }: Delive
         if (json.id) {
             setReviewDeliveryId(json.id);
             setReviewVehicleId(json.vehicle_id ?? null);
+            setReviewVehicleIds(null);
             setReviewOpen(true);
         }
+    };
+
+    const openReviewForDelivery = (delivery: Delivery) => {
+        setReviewDeliveryId(delivery.id);
+        setReviewVehicleId(delivery.vehicle_id ?? null);
+        setReviewVehicleIds(delivery.vehicle?.vehicle_number ?? null);
+        setReviewOpen(true);
     };
 
     const statusConfig: Record<string, { label: string; color: string }> = {
@@ -104,7 +126,7 @@ export default function Index({ deliveries, drivers, vehicles, filters }: Delive
     return (
         <AdminLayout breadcrumbs={[{ title: 'Deliveries', href: '/admin/deliveries' }]}>
             <Head title="All Deliveries" />
-            <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
+            <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-x-hidden p-4 lg:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Deliveries Management</h1>
@@ -124,74 +146,89 @@ export default function Index({ deliveries, drivers, vehicles, filters }: Delive
 
                 {/* Compact inline filters */}
                 <div className="rounded-lg border bg-muted/30 px-3 py-2 dark:border-gray-700 dark:bg-gray-800/50">
-                    <form onSubmit={submit} className="flex flex-wrap items-end gap-2">
-                        <div className="w-20">
-                            <Label htmlFor="filter-id" className="text-[10px] font-medium text-muted-foreground">ID</Label>
-                            <Input
-                                id="filter-id"
-                                type="text"
-                                placeholder="#"
-                                value={data.id}
-                                onChange={(e) => setData('id', e.target.value)}
-                                className="h-8 text-xs"
-                            />
-                        </div>
-                        <div className="w-28">
-                            <Label htmlFor="filter-status" className="text-[10px] font-medium text-muted-foreground">Status</Label>
-                            <Select value={data.status || 'all'} onValueChange={(v) => setData('status', v === 'all' ? '' : v)}>
-                                <SelectTrigger id="filter-status" className="h-8 text-xs">
-                                    <SelectValue placeholder="All" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All</SelectItem>
-                                    <SelectItem value="pending">Pending</SelectItem>
-                                    <SelectItem value="assigned">Assigned</SelectItem>
-                                    <SelectItem value="in_progress">In Progress</SelectItem>
-                                    <SelectItem value="completed">Completed</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="w-32">
-                            <Label htmlFor="filter-driver" className="text-[10px] font-medium text-muted-foreground">Driver</Label>
-                            <Select value={data.driver_id || 'all'} onValueChange={(v) => setData('driver_id', v === 'all' ? '' : v)}>
-                                <SelectTrigger id="filter-driver" className="h-8 text-xs">
-                                    <SelectValue placeholder="All" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All</SelectItem>
-                                    {drivers.map((d) => (
-                                        <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="w-28">
-                            <Label htmlFor="filter-vehicle" className="text-[10px] font-medium text-muted-foreground">Vehicle</Label>
-                            <Select value={data.vehicle_id || 'all'} onValueChange={(v) => setData('vehicle_id', v === 'all' ? '' : v)}>
-                                <SelectTrigger id="filter-vehicle" className="h-8 text-xs">
-                                    <SelectValue placeholder="All" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All</SelectItem>
-                                    {vehicles.map((v) => (
-                                        <SelectItem key={v.id} value={String(v.id)}>{v.vehicle_number}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="w-28">
-                            <Label className="text-[10px] font-medium text-muted-foreground">From</Label>
-                            <DatePicker value={data.date_from} onChange={(v) => setData('date_from', v)} placeholder="Date" className="h-8 min-w-0" />
-                        </div>
-                        <div className="w-28">
-                            <Label className="text-[10px] font-medium text-muted-foreground">To</Label>
-                            <DatePicker value={data.date_to} onChange={(v) => setData('date_to', v)} placeholder="Date" className="h-8 min-w-0" />
+                    <div className="mb-2 w-full sm:hidden">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowFilters(!showFilters)}
+                            className="w-full gap-2"
+                        >
+                            <Filter className="h-4 w-4" />
+                            {showFilters ? 'Hide Filters' : 'Show Filters'}
+                            {activeFiltersCount > 0 && !showFilters && (
+                                <Badge variant="secondary" className="ml-2 px-1.5 py-0.5 text-[10px]">
+                                    {activeFiltersCount} Active
+                                </Badge>
+                            )}
+                        </Button>
+                    </div>
+                    <form onSubmit={submit} className={`flex-col gap-3 sm:flex sm:flex-row sm:flex-wrap sm:items-end w-full ${showFilters ? 'flex' : 'hidden'}`}>
+                        <div className="flex flex-1 flex-wrap items-end gap-2">
+                            <div>
+                                <Label htmlFor="filter-id" className="text-[10px] font-medium text-muted-foreground">ID</Label>
+                                <Input
+                                    id="filter-id"
+                                    type="text"
+                                    placeholder="#"
+                                    value={data.id}
+                                    onChange={(e) => setData('id', e.target.value)}
+                                    className="h-8 text-xs w-[80px]"
+                                />
+                            </div>
+                            <div>
+                                <Label htmlFor="filter-status" className="text-[10px] font-medium text-muted-foreground">Status</Label>
+                                <Select value={data.status || 'all'} onValueChange={(v) => handleFilterSelect('status', v === 'all' ? '' : v)}>
+                                    <SelectTrigger id="filter-status" className="h-8 text-xs w-[120px]">
+                                        <SelectValue placeholder="All" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All</SelectItem>
+                                        <SelectItem value="pending">Pending</SelectItem>
+                                        <SelectItem value="assigned">Assigned</SelectItem>
+                                        <SelectItem value="in_progress">In Progress</SelectItem>
+                                        <SelectItem value="completed">Completed</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <Label htmlFor="filter-driver" className="text-[10px] font-medium text-muted-foreground">Driver</Label>
+                                <Select value={data.driver_id || 'all'} onValueChange={(v) => handleFilterSelect('driver_id', v === 'all' ? '' : v)}>
+                                    <SelectTrigger id="filter-driver" className="h-8 text-xs w-[120px]">
+                                        <SelectValue placeholder="All" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All</SelectItem>
+                                        {drivers.map((d) => (
+                                            <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <Label htmlFor="filter-vehicle" className="text-[10px] font-medium text-muted-foreground">Vehicle</Label>
+                                <Select value={data.vehicle_id || 'all'} onValueChange={(v) => handleFilterSelect('vehicle_id', v === 'all' ? '' : v)}>
+                                    <SelectTrigger id="filter-vehicle" className="h-8 text-xs w-[120px]">
+                                        <SelectValue placeholder="All" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All</SelectItem>
+                                        {vehicles.map((v) => (
+                                            <SelectItem key={v.id} value={String(v.id)}>{v.vehicle_number}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <Label className="text-[10px] font-medium text-muted-foreground">From</Label>
+                                <DatePicker value={data.date_from} onChange={(v) => handleFilterSelect('date_from', v)} placeholder="Date" className="h-8 w-48" />
+                            </div>
+                            <div>
+                                <Label className="text-[10px] font-medium text-muted-foreground">To</Label>
+                                <DatePicker value={data.date_to} onChange={(v) => handleFilterSelect('date_to', v)} placeholder="Date" className="h-8 w-48" />
+                            </div>
                         </div>
                         <div className="flex gap-1.5">
-                            <Button type="submit" size="sm" disabled={processing} className="h-8 gap-1 bg-indigo-600 px-3 text-xs hover:bg-indigo-500">
-                                <Search className="h-3.5 w-3.5" />
-                                Search
-                            </Button>
                             <Button type="button" size="sm" variant="outline" className="h-8 gap-1 px-3 text-xs" onClick={handleReset}>
                                 <RotateCcw className="h-3.5 w-3.5" />
                                 Reset
@@ -203,7 +240,7 @@ export default function Index({ deliveries, drivers, vehicles, filters }: Delive
                 {/* Mobile: card list */}
                 <div className="space-y-3 md:hidden">
                     {deliveries.data.length === 0 ? (
-                        <div className="rounded-xl border bg-white p-8 text-center text-muted-foreground dark:border-gray-700 dark:bg-gray-800">
+                        <div className="rounded-xl border bg-white p-6 text-center text-muted-foreground dark:border-gray-700 dark:bg-gray-800">
                             No deliveries found matching your search.
                         </div>
                     ) : (
@@ -216,6 +253,7 @@ export default function Index({ deliveries, drivers, vehicles, filters }: Delive
                                     statusLabel={status.label}
                                     statusClassName={status.color}
                                     onDelete={setDeleteConfirmId}
+                                    onReview={openReviewForDelivery}
                                 />
                             );
                         })
@@ -319,11 +357,7 @@ export default function Index({ deliveries, drivers, vehicles, filters }: Delive
                                                         size="icon"
                                                         className="h-8 w-8 text-indigo-600 hover:text-indigo-700"
                                                         title="Review Delivery"
-                                                        onClick={() => {
-                                                            setReviewDeliveryId(delivery.id);
-                                                            setReviewVehicleId(delivery.vehicle_id ?? null);
-                                                            setReviewOpen(true);
-                                                        }}
+                                                        onClick={() => openReviewForDelivery(delivery)}
                                                     >
                                                         <ClipboardCheck className="h-4 w-4" />
                                                     </Button>
@@ -368,23 +402,27 @@ export default function Index({ deliveries, drivers, vehicles, filters }: Delive
                 )}
             </div>
 
-            <Dialog open={reviewOpen} onOpenChange={(open) => { setReviewOpen(open); if (!open) { setReviewDeliveryId(null); setReviewVehicleId(null); } }}>
-                <DialogContent className="max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2">
+            <Sheet open={reviewOpen} onOpenChange={(open) => { setReviewOpen(open); if (!open) { setReviewDeliveryId(null); setReviewVehicleId(null); setReviewVehicleIds(null); } }}>
+                <SheetContent side="left" className="flex w-[85vw] max-w-lg flex-col overflow-y-auto p-0 sm:max-w-lg">
+                    <SheetHeader className="shrink-0 border-b px-4 py-3">
+                        <SheetTitle className="flex items-center gap-2">
                             <ClipboardCheck className="h-4 w-4" />
                             Delivery Quality Review
-                        </DialogTitle>
-                    </DialogHeader>
-                    <QualityReviewForm
-                        key={`${reviewDeliveryId ?? 0}-${reviewVehicleId ?? 0}`}
-                        submitRoute={route('admin.quality-reports.store')}
-                        initialDeliveryId={reviewDeliveryId}
-                        initialVehicleId={reviewVehicleId}
-                        onSuccess={() => { setReviewOpen(false); setReviewDeliveryId(null); setReviewVehicleId(null); }}
-                    />
-                </DialogContent>
-            </Dialog>
+                        </SheetTitle>
+                    </SheetHeader>
+                    <div className="flex-1 overflow-y-auto p-4">
+                        <QualityReviewForm
+                            key={`${reviewDeliveryId ?? 0}-${reviewVehicleId ?? 0}`}
+                            submitRoute={route('admin.quality-reports.store')}
+                            initialDeliveryId={reviewDeliveryId}
+                            initialVehicleId={reviewVehicleId}
+                            initialVehicleIds={reviewVehicleIds ?? undefined}
+                            initialSupervisorName={auth.user?.name ?? undefined}
+                            onSuccess={() => { setReviewOpen(false); setReviewDeliveryId(null); setReviewVehicleId(null); setReviewVehicleIds(null); }}
+                        />
+                    </div>
+                </SheetContent>
+            </Sheet>
 
             <ActionConfirmDialog
                 open={deleteConfirmId !== null}
